@@ -14,14 +14,16 @@ Team of 3: 1 PM, 2 Dev.
 - Keep this file updated as conventions evolve
 
 ## Stack
-TBD once legacy flavor is chosen.
+- Legacy: Enterprise Java 2010 (Servlet/JSP, Maven, in-memory H2)
+- Modernization target: TBD (strangler fig / service extraction)
+- Infra: Docker Compose (target)
 
 ## Team Roles
 | Name | Role | Focus |
 |---|---|---|
 | Luca Provvidenza | PM | Stories, acceptance criteria, stakeholder alignment |
-| TBD | Dev | Monolith generation, service extraction, tests |
-| TBD | Dev | Architecture, anti-corruption layer, eval harness |
+| Lucia Cilento | Dev | Service extraction, tests, anti-corruption layer, eval harness |
+| TBD | Dev | Architecture, decomposition map |
 
 ## Key Rules
 - Commit often — commit history is judged

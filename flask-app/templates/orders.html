@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Ordini{% endblock %}
+
+{% block content %}
+<h2>Lista Ordini</h2>
+
+<form method="GET" action="{{ url_for('orders') }}" class="filtri-form">
+    <label>Cliente:
+        <input type="text" name="filtroCliente" value="{{ filtro_cliente }}">
+    </label>
+    <label>Stato:
+        <select name="filtroStato">
+            <option value="">Tutti</option>
+            {% for k, v in stati.items() %}
+            <option value="{{ k }}" {% if filtro_stato == k|string %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Da:
+        <input type="date" name="dataDa" value="{{ data_da }}">
+    </label>
+    <label>A:
+        <input type="date" name="dataA" value="{{ data_a }}">
+    </label>
+    <button type="submit" class="btn">Filtra</button>
+</form>
+
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>N. Ordine</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Consegna Prevista</th>
+            <th>Stato</th>
+            <th>Importo</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in ordini %}
+        <tr>
+            <td>{{ o.NUMERO_ORDINE }}</td>
+            <td>{{ o.cliente or 'N/D' }}</td>
+            <td>{{ o.DATA_ORDINE[:10] if o.DATA_ORDINE else '-' }}</td>
+            <td>{{ o.DATA_CONSEGNA_PREVISTA[:10] if o.DATA_CONSEGNA_PREVISTA else '-' }}</td>
+            <td>
+                <span class="stato stato-{{ o.STATO }}">{{ o.stato_label }}</span>
+            </td>
+            <td class="importo">
+                {% if o.IMPORTO_TOTALE is not none %}
+                    € {{ "%.2f"|format(o.IMPORTO_TOTALE) }}
+                {% else %}-{% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('order_detail', order_id=o.ID) }}" class="btn btn-small">Dettaglio</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="vuoto">Nessun ordine trovato</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
