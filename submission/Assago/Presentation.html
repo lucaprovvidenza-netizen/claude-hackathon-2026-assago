@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -276,7 +276,7 @@
       <h1>Scenario 1:<br><span>The Monolith</span></h1>
       <div class="divider"></div>
       <p style="max-width: 580px; font-size: 18px; color: #bbb; line-height: 1.6;">
-        <strong style="color: var(--accent2);">Brennero Logistics S.p.A.</strong> — modernizzazione portale ordini Java legacy verso Python, senza big-bang rewrite.
+        <strong style="color: var(--accent2);">Brennero Logistics S.p.A.</strong> — modernizing a legacy Java order portal to Python, without a big-bang rewrite.
       </p>
       <div class="hero-meta">
         <div class="item">
@@ -284,7 +284,7 @@
           <span class="value">Assago</span>
         </div>
         <div class="item">
-          <span class="label">Stack attuale</span>
+          <span class="label">Current stack</span>
           <span class="value">Java + JSP + H2</span>
         </div>
         <div class="item">
@@ -303,32 +303,32 @@
   <div class="slide" id="s2">
     <div style="max-width: 900px; width: 100%;">
       <div class="slide-header">
-        <div class="eyebrow">Il punto di partenza</div>
-        <h2>Un monolite che funziona,<br>quasi</h2>
+        <div class="eyebrow">The starting point</div>
+        <h2>A monolith that works,<br>mostly</h2>
       </div>
       <div class="grid-2" style="align-items: start;">
         <div>
           <div class="problem-box">
-            <h3 style="margin-bottom: 12px;">L'app oggi</h3>
+            <h3 style="margin-bottom: 12px;">The app today</h3>
             <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-              <li>&#x26A0;&#xFE0F; <code>PortalServlet.java</code> — God Servlet unico</li>
-              <li>&#x26A0;&#xFE0F; H2 in-memory — dati persi ad ogni riavvio</li>
-              <li>&#x26A0;&#xFE0F; Credenziali hardcoded in <code>DatabaseManager.java</code></li>
-              <li>&#x26A0;&#xFE0F; Zero JavaScript — nessuna interattività</li>
-              <li>&#x26A0;&#xFE0F; 6 JSP + JSTL — no framework CSS</li>
+              <li>&#x26A0;&#xFE0F; <code>PortalServlet.java</code> — single God Servlet</li>
+              <li>&#x26A0;&#xFE0F; H2 in-memory — data lost on every restart</li>
+              <li>&#x26A0;&#xFE0F; Hardcoded credentials in <code>DatabaseManager.java</code></li>
+              <li>&#x26A0;&#xFE0F; Zero JavaScript — no interactivity</li>
+              <li>&#x26A0;&#xFE0F; 6 JSP + JSTL — no CSS framework</li>
             </ul>
           </div>
         </div>
         <div class="card">
-          <h3 style="margin-bottom: 16px;">Stack attuale</h3>
+          <h3 style="margin-bottom: 16px;">Current stack</h3>
           <table>
-            <tr><th>Layer</th><th>Tecnologia</th></tr>
+            <tr><th>Layer</th><th>Technology</th></tr>
             <tr><td>Language</td><td><span class="tag tag-red">Java</span></td></tr>
             <tr><td>Frontend</td><td>JSP + JSTL 1.2</td></tr>
-            <tr><td>Backend</td><td>Servlet puro</td></tr>
+            <tr><td>Backend</td><td>Pure Servlet</td></tr>
             <tr><td>Database</td><td>H2 in-memory</td></tr>
             <tr><td>CSS</td><td>Vanilla, no framework</td></tr>
-            <tr><td>JS</td><td><span class="tag tag-red">Assente</span></td></tr>
+            <tr><td>JS</td><td><span class="tag tag-red">None</span></td></tr>
           </table>
         </div>
       </div>
@@ -340,7 +340,7 @@
     <div style="max-width: 800px; width: 100%;">
       <div class="slide-header">
         <div class="eyebrow">Team Assago</div>
-        <h2>Tre ruoli, un obiettivo</h2>
+        <h2>Three roles, one goal</h2>
       </div>
       <div class="grid-3">
         <div class="card" style="text-align: center; border-top: 3px solid var(--accent);">
@@ -353,13 +353,13 @@
           <div style="font-size: 40px; margin-bottom: 12px;">&#x1F3DB;&#xFE0F;</div>
           <h3>Chiara Scarpino</h3>
           <div class="tag tag-blue" style="margin: 8px 0 12px;">Architect</div>
-          <p style="font-size: 14px;">Monolite Java, ADR-001 migrazione, ADR-002 DB, schema SQLite</p>
+          <p style="font-size: 14px;">Java monolith, ADR-001 migration, ADR-002 DB, SQLite schema</p>
         </div>
         <div class="card" style="text-align: center; border-top: 3px solid var(--green);">
           <div style="font-size: 40px; margin-bottom: 12px;">&#x2699;&#xFE0F;</div>
           <h3>Lucia Cilento</h3>
           <div class="tag tag-green" style="margin: 8px 0 12px;">Dev</div>
-          <p style="font-size: 14px;">FastAPI scaffold, migrazione route, E2 Gold/Silver/Bronze, E3 Chart.js</p>
+          <p style="font-size: 14px;">FastAPI scaffold, route migration, E2 Gold/Silver/Bronze, E3 Chart.js</p>
         </div>
       </div>
     </div>
@@ -369,7 +369,7 @@
   <div class="slide" id="s4">
     <div style="max-width: 900px; width: 100%;">
       <div class="slide-header">
-        <div class="eyebrow">Scope di progetto</div>
+        <div class="eyebrow">Project scope</div>
         <h2>5 Epics</h2>
       </div>
       <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -377,8 +377,8 @@
           <div class="epic-badge">
             <div class="epic-num">E1</div>
             <div>
-              <div style="font-weight: 600;">Gestione Ordini</div>
-              <div style="font-size: 13px; color: var(--muted);">Catalogo esteso — prodotti + servizi con tipologie differenziate</div>
+              <div style="font-weight: 600;">Order Management</div>
+              <div style="font-size: 13px; color: var(--muted);">Extended catalog — products + services with differentiated types</div>
             </div>
           </div>
           <span class="risk-pill risk-low">P1</span>
@@ -387,8 +387,8 @@
           <div class="epic-badge">
             <div class="epic-num">E2</div>
             <div>
-              <div style="font-weight: 600;">Gestione Clienti</div>
-              <div style="font-size: 13px; color: var(--muted);">Anagrafica estesa, ricerca per nome/prodotto, priorità 1-2-3</div>
+              <div style="font-weight: 600;">Customer Management</div>
+              <div style="font-size: 13px; color: var(--muted);">Extended registry, search by name/product, priority 1-2-3</div>
             </div>
           </div>
           <span class="risk-pill risk-low">P1</span>
@@ -397,8 +397,8 @@
           <div class="epic-badge">
             <div class="epic-num">E3</div>
             <div>
-              <div style="font-weight: 600;">Reportistica</div>
-              <div style="font-size: 13px; color: var(--muted);">Dashboard moderna con grafici Chart.js — ordini, clienti, trend</div>
+              <div style="font-weight: 600;">Reporting</div>
+              <div style="font-size: 13px; color: var(--muted);">Modern dashboard with Chart.js — orders, customers, trends</div>
             </div>
           </div>
           <span class="risk-pill risk-med">P2</span>
@@ -407,18 +407,18 @@
           <div class="epic-badge">
             <div class="epic-num">E4</div>
             <div>
-              <div style="font-weight: 600;">Modernizzazione</div>
-              <div style="font-size: 13px; color: var(--muted);">Java → Python (FastAPI), fix anomalie note, God Servlet → router FastAPI</div>
+              <div style="font-weight: 600;">Modernization</div>
+              <div style="font-size: 13px; color: var(--muted);">Java → Python (FastAPI), fix known anomalies, God Servlet → FastAPI router</div>
             </div>
           </div>
-          <span class="risk-pill risk-high">OBBLIGATORIA</span>
+          <span class="risk-pill risk-high">REQUIRED</span>
         </div>
         <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
           <div class="epic-badge">
             <div class="epic-num">E5</div>
             <div>
-              <div style="font-weight: 600;">Integrità Dati</div>
-              <div style="font-size: 13px; color: var(--muted);">H2 in-memory → SQLite persistente, fix creds hardcoded, archivio storico</div>
+              <div style="font-weight: 600;">Data Integrity</div>
+              <div style="font-size: 13px; color: var(--muted);">H2 in-memory → persistent SQLite, fix hardcoded creds, historical archive</div>
             </div>
           </div>
           <span class="risk-pill risk-med">P2</span>
@@ -431,29 +431,29 @@
   <div class="slide" id="s5">
     <div style="max-width: 900px; width: 100%;">
       <div class="slide-header">
-        <div class="eyebrow">Architettura target</div>
-        <h2>Da God Servlet a Router FastAPI</h2>
+        <div class="eyebrow">Target architecture</div>
+        <h2>From God Servlet to FastAPI Router</h2>
       </div>
       <div class="grid-2" style="align-items: start;">
         <div class="card" style="border-top: 3px solid var(--red);">
-          <h3 style="margin-bottom: 16px; color: var(--red);">&#x2715; Prima (Java)</h3>
+          <h3 style="margin-bottom: 16px; color: var(--red);">&#x2715; Before (Java)</h3>
           <table>
-            <tr><th>Componente</th><th>Problema</th></tr>
-            <tr><td><code>PortalServlet.java</code></td><td>Tutto in un file</td></tr>
-            <tr><td>H2 in-memory</td><td>Dati volatili</td></tr>
-            <tr><td>6 JSP</td><td>Logic + view mescolate</td></tr>
+            <tr><th>Component</th><th>Problem</th></tr>
+            <tr><td><code>PortalServlet.java</code></td><td>Everything in one file</td></tr>
+            <tr><td>H2 in-memory</td><td>Volatile data</td></tr>
+            <tr><td>6 JSP</td><td>Logic + view mixed</td></tr>
             <tr><td>Creds hardcoded</td><td>Security issue</td></tr>
             <tr><td>Zero JS</td><td>No dashboard</td></tr>
           </table>
         </div>
         <div class="card" style="border-top: 3px solid var(--green);">
-          <h3 style="margin-bottom: 16px; color: var(--green);">&#x2714; Dopo (Python)</h3>
+          <h3 style="margin-bottom: 16px; color: var(--green);">&#x2714; After (Python)</h3>
           <table>
-            <tr><th>Componente</th><th>Soluzione</th></tr>
-            <tr><td>FastAPI Router</td><td>Route separate per dominio</td></tr>
-            <tr><td>SQLite file</td><td>Dati persistenti</td></tr>
-            <tr><td>Jinja2 templates</td><td>View pulite</td></tr>
-            <tr><td><code>.env</code> vars</td><td>No secrets in codice</td></tr>
+            <tr><th>Component</th><th>Solution</th></tr>
+            <tr><td>FastAPI Router</td><td>Domain-separated routes</td></tr>
+            <tr><td>SQLite file</td><td>Persistent data</td></tr>
+            <tr><td>Jinja2 templates</td><td>Clean views</td></tr>
+            <tr><td><code>.env</code> vars</td><td>No secrets in code</td></tr>
             <tr><td>Chart.js CDN</td><td>Dashboard E3</td></tr>
           </table>
         </div>
@@ -465,8 +465,8 @@
   <div class="slide" id="s6">
     <div style="max-width: 900px; width: 100%;">
       <div class="slide-header">
-        <div class="eyebrow">Piano di esecuzione</div>
-        <h2>53 minuti — 3 track parallele</h2>
+        <div class="eyebrow">Execution plan</div>
+        <h2>53 minutes — 3 parallel tracks</h2>
       </div>
       <div class="grid-3" style="align-items: start;">
         <div>
@@ -477,17 +477,17 @@
             <div class="tl-item">
               <div class="tl-left">0–10</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>CLAUDE.md + README</strong><p>Stack, ruoli, scenario</p></div>
+              <div class="tl-content"><strong>CLAUDE.md + README</strong><p>Stack, roles, scenario</p></div>
             </div>
             <div class="tl-item">
               <div class="tl-left">10–20</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>decisions/ folder</strong><p>ADR template + commit struttura</p></div>
+              <div class="tl-content"><strong>decisions/ folder</strong><p>ADR template + commit structure</p></div>
             </div>
             <div class="tl-item">
               <div class="tl-left">20–50</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>Coordinamento</strong><p>Review PR, commit messages</p></div>
+              <div class="tl-content"><strong>Coordination</strong><p>PR review, commit messages</p></div>
             </div>
             <div class="tl-item">
               <div class="tl-left">50–53</div>
@@ -509,7 +509,7 @@
             <div class="tl-item">
               <div class="tl-left">10–20</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>Schema SQLite</strong><p>Nuovi campi E2 + persistenza</p></div>
+              <div class="tl-content"><strong>SQLite Schema</strong><p>New E2 fields + persistence</p></div>
             </div>
             <div class="tl-item">
               <div class="tl-left">20–50</div>
@@ -531,17 +531,17 @@
             <div class="tl-item">
               <div class="tl-left">15–25</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>Migra route core</strong><p>orders + customers → Jinja2</p></div>
+              <div class="tl-content"><strong>Migrate core routes</strong><p>orders + customers → Jinja2</p></div>
             </div>
             <div class="tl-item">
               <div class="tl-left">25–35</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>E2</strong><p>Priorità cliente + ricerca</p></div>
+              <div class="tl-content"><strong>E2</strong><p>Customer priority + search</p></div>
             </div>
             <div class="tl-item">
               <div class="tl-left">35–50</div>
               <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
-              <div class="tl-content"><strong>E3 + E1</strong><p>Chart.js + tipo catalogo</p></div>
+              <div class="tl-content"><strong>E3 + E1</strong><p>Chart.js + catalog types</p></div>
             </div>
           </div>
         </div>
@@ -655,9 +655,9 @@
 
 <!-- Nav -->
 <div class="nav">
-  <button id="prev" disabled>&#8592; Prec</button>
+  <button id="prev" disabled>&#8592; Prev</button>
   <span class="counter" id="counter">1 / 7</span>
-  <button id="next">Succ &#8594;</button>
+  <button id="next">Next &#8594;</button>
 </div>
 
 <script>
