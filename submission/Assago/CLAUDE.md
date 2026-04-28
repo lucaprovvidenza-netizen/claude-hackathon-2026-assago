@@ -56,17 +56,17 @@ Full user stories with acceptance criteria: `docs/user-stories.md`
 
 | Epic | Title | Status | Owner |
 |------|-------|--------|-------|
-| E1 | Order Management — extended catalog (5 product types) | TODO | Lucia |
-| E2 | Customer Management — extended fields, search, Gold/Silver/Bronze | TODO | Lucia |
-| E3 | Reporting — KPI dashboard + Chart.js | TODO | Lucia |
-| E4 | Modernization — FastAPI scaffold + route migration | TODO | Lucia |
-| E5 | Data Integrity — H2→SQLite migration script, order archival | TODO | Chiara |
+| E1 | Order Management — extended catalog (5 product types) | in progress | Lucia |
+| E2 | Customer Management — extended fields, search, Gold/Silver/Bronze | in progress | Lucia |
+| E3 | Reporting — KPI dashboard + Chart.js | in progress | Lucia |
+| E4 | Modernization — FastAPI scaffold + route migration | in progress | Lucia |
+| E5 | Data Integrity — H2→SQLite migration script, order archival | in progress | Chiara |
 
-## Known Schema Gaps (must fix before coding E1/E2)
-- `clienti` missing `classificazione` field (gold/silver/bronze) — required by E2
-- `prodotti` missing `tipologia` field (trasporto/dogana/magazzino/assicurazione/consulenza) — required by E1
-- `clienti` missing commercial fields: `settore_merceologico`, `referente_commerciale`, `telefono_referente` — required by E2
-- `utenti` has placeholder bcrypt hashes — replace with real seed script
+## Schema
+- v1 baseline: `decisions/schema-sqlite-v1.sql`
+- v2 (use this): `decisions/schema-sqlite-v2.sql` — adds `classificazione`, `tipologia`, commercial fields, archive tables
+- v1→v2 migration SQL included as comments at bottom of schema-sqlite-v2.sql
+- Bootstrap users use placeholder bcrypt hashes — replace with real seed script before demo
 
 ## Conventions
 - Language: English for code and identifiers, Italian allowed in comments
