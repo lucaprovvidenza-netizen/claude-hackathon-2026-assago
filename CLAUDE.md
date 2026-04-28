@@ -20,8 +20,8 @@ TBD once legacy flavor is chosen.
 | Name | Role | Focus |
 |---|---|---|
 | Luca Provvidenza | PM | Stories, acceptance criteria, stakeholder alignment |
-| TBD | Dev | Monolith generation, service extraction, tests |
-| TBD | Dev | Architecture, anti-corruption layer, eval harness |
+| Chiara Scarpino | Dev | Monolith generation, service extraction, tests |
+| Lucia Cilento | Dev | Architecture, anti-corruption layer, eval harness |
 
 ## Key Rules
 - Commit often — commit history is judged

@@ -9,8 +9,8 @@ Northwind Logistics runs on something old. It works, mostly, but the people who 
 | Name | Role |
 |---|---|
 | Luca Provvidenza | PM |
-| TBD | Dev |
-| TBD | Dev |
+| Chiara Scarpino | Dev |
+| Lucia Cilento | Dev |
 
 ## Challenges Attempted
 | # | Challenge | Status | Owner | Notes |
