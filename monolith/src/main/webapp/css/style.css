@@ -1,0 +1,387 @@
+/* Brennero Logistics - Portale Ordini
+   CSS scritto nel 2015, rattoppato nel tempo.
+   Mobile? Mai sentito. */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    background: #f0f0f0;
+    color: #333;
+}
+
+/* Header fisso, stile anni 2000 */
+.header {
+    background: #1a3a5c;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.logo {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.header nav {
+    display: flex;
+    gap: 5px;
+}
+
+.header nav a {
+    color: #ccc;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+}
+
+.header nav a:hover, .header nav a.active {
+    color: white;
+    background: rgba(255,255,255,0.15);
+}
+
+.user-info {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.user-info a {
+    color: #ccc;
+}
+
+/* Contenuto */
+.content {
+    max-width: 1200px;
+    margin: 70px auto 40px;
+    padding: 20px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.content h2 {
+    color: #1a3a5c;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1a3a5c;
+}
+
+/* Tabelle */
+.tabella-dati {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.tabella-dati th {
+    background: #1a3a5c;
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.tabella-dati td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabella-dati tbody tr:hover {
+    background: #f5f8fc;
+}
+
+.tabella-dati .importo {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+}
+
+.tabella-dati .numero {
+    text-align: center;
+}
+
+.tabella-dati .vuoto {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-style: italic;
+}
+
+.totale-riga td {
+    background: #f0f4f8;
+    border-top: 2px solid #1a3a5c;
+}
+
+/* Tabella dettaglio (key-value) */
+.tabella-dettaglio {
+    margin: 10px 0;
+}
+
+.tabella-dettaglio td {
+    padding: 4px 10px;
+}
+
+.tabella-dettaglio td:first-child {
+    color: #666;
+    font-size: 12px;
+    width: 150px;
+}
+
+/* Dettaglio ordine */
+.dettaglio-grid {
+    display: flex;
+    gap: 30px;
+    margin: 15px 0;
+}
+
+.dettaglio-sezione {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.dettaglio-sezione h3 {
+    color: #1a3a5c;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Stati ordine */
+.stato {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.stato-0 { background: #eee; color: #666; }
+.stato-1 { background: #d4edda; color: #155724; }
+.stato-2 { background: #fff3cd; color: #856404; }
+.stato-3 { background: #cce5ff; color: #004085; }
+.stato-4 { background: #d1ecf1; color: #0c5460; }
+.stato-5 { background: #f8d7da; color: #721c24; }
+.stato-6 { background: #e2e3e5; color: #383d41; }
+.stato-7 { background: #fff3cd; color: #856404; }
+
+/* Note */
+.note-box {
+    padding: 10px 15px;
+    margin: 10px 0;
+    background: #f8f9fa;
+    border-left: 4px solid #1a3a5c;
+    border-radius: 0 4px 4px 0;
+}
+
+.note-interne {
+    border-left-color: #ffc107;
+    background: #fffbea;
+}
+
+.warning {
+    color: #e74c3c;
+    font-size: 16px;
+    cursor: help;
+}
+
+/* Form */
+.filtri-form {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.filtri-form label {
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filtri-form input, .filtri-form select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.form-section {
+    margin: 20px 0;
+}
+
+.form-section h3 {
+    color: #1a3a5c;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.input-qty {
+    width: 80px;
+    padding: 6px;
+    text-align: center;
+}
+
+.input-anno {
+    width: 100px;
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.form-inline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.azioni-ordine {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* Bottoni */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-block;
+    background: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.btn-primary {
+    background: #1a3a5c;
+}
+
+.btn-danger {
+    background: #dc3545;
+}
+
+.btn-small {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+/* Login */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #1a3a5c;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    width: 350px;
+    text-align: center;
+}
+
+.login-box h1 {
+    color: #1a3a5c;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.login-box h2 {
+    color: #666;
+    font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 25px;
+}
+
+.login-box .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.login-box label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.login-box .btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.footer-text {
+    margin-top: 20px;
+    font-size: 11px;
+    color: #999;
+}
+
+/* Errori */
+.errore {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 15px;
+    color: #999;
+    font-size: 11px;
+}
