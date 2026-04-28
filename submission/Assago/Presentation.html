@@ -549,21 +549,22 @@
     </div>
   </div>
 
-  <!-- SLIDE 7 — Cosa consegniamo -->
+  <!-- SLIDE 7 — What We Deliver -->
   <div class="slide" id="s7">
-    <div style="max-width: 800px; width: 100%;">
+    <div style="max-width: 860px; width: 100%;">
       <div class="slide-header">
-        <div class="eyebrow">Deliverable</div>
-        <h2>Cosa consegniamo</h2>
+        <div class="eyebrow">Deliverables</div>
+        <h2>What We Deliver</h2>
       </div>
       <div class="grid-2" style="align-items: start;">
-        <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 4px;">Done</div>
           <div class="card">
             <div class="epic-badge">
               <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
               <div>
-                <div style="font-weight: 600;">App Python funzionante</div>
-                <div style="font-size: 13px; color: var(--muted);">FastAPI + SQLite persistente, no hardcoded secrets</div>
+                <div style="font-weight: 600;">Legacy Java monolith</div>
+                <div style="font-size: 13px; color: var(--muted);">Brennero Logistics — God Servlet, real anomalies, 6 JSP pages</div>
               </div>
             </div>
           </div>
@@ -571,28 +572,17 @@
             <div class="epic-badge">
               <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
               <div>
-                <div style="font-weight: 600;">Clienti Gold/Silver/Bronze + ricerca</div>
-                <div style="font-size: 13px; color: var(--muted);">Classificazione con badge colorato, search per nome e prodotto</div>
+                <div style="font-weight: 600;">User stories + acceptance criteria</div>
+                <div style="font-size: 13px; color: var(--muted);">5 epics, 17 stories, stakeholder conflicts documented</div>
               </div>
             </div>
           </div>
-          <div class="card">
-            <div class="epic-badge">
-              <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
-              <div>
-                <div style="font-weight: 600;">Dashboard con grafici</div>
-                <div style="font-size: 13px; color: var(--muted);">Chart.js — ordini per stato, trend clienti</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
           <div class="card">
             <div class="epic-badge">
               <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
               <div>
                 <div style="font-weight: 600;">ADR-001 + ADR-002</div>
-                <div style="font-size: 13px; color: var(--muted);">Decisioni architetturali documentate in /decisions</div>
+                <div style="font-size: 13px; color: var(--muted);">FastAPI decided, SQLite decided, migration strategy defined</div>
               </div>
             </div>
           </div>
@@ -600,17 +590,47 @@
             <div class="epic-badge">
               <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
               <div>
-                <div style="font-weight: 600;">CLAUDE.md aggiornato</div>
-                <div style="font-size: 13px; color: var(--muted);">Stack, ruoli, convenzioni, scenario completo</div>
+                <div style="font-weight: 600;">SQLite schema v1</div>
+                <div style="font-size: 13px; color: var(--muted);">Modernized schema — enums, FK, WAL, no duplicate fields</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 4px;">In Progress</div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--accent2);">E4</div>
+              <div>
+                <div style="font-weight: 600;">FastAPI app + route migration</div>
+                <div style="font-size: 13px; color: var(--muted);">God Servlet → FastAPI routers, SQLAlchemy models, Alembic</div>
               </div>
             </div>
           </div>
           <div class="card">
             <div class="epic-badge">
-              <div class="epic-num" style="background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--purple);">&#x25B3;</div>
+              <div class="epic-num" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--accent2);">E2</div>
               <div>
-                <div style="font-weight: 600;">Catalogo E1</div>
-                <div style="font-size: 13px; color: var(--muted);">Tipo prodotto/servizio — se il tempo lo permette</div>
+                <div style="font-weight: 600;">Customer Gold / Silver / Bronze</div>
+                <div style="font-size: 13px; color: var(--muted);">Classification badge, extended fields, global search</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--accent2);">E3</div>
+              <div>
+                <div style="font-weight: 600;">KPI dashboard — Chart.js</div>
+                <div style="font-size: 13px; color: var(--muted);">Orders by status, revenue trend, customer breakdown</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--accent2);">E1</div>
+              <div>
+                <div style="font-weight: 600;">Extended catalog (5 types)</div>
+                <div style="font-size: 13px; color: var(--muted);">Transport, Customs, Warehouse, Insurance, Consulting</div>
               </div>
             </div>
           </div>
