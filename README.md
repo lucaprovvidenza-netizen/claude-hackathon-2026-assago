@@ -15,8 +15,8 @@ Northwind Logistics runs on something old. It works, mostly, but the people who 
 ## Challenges Attempted
 | # | Challenge | Status | Owner | Notes |
 |---|---|---|---|---|
-| 1 | The Stories | pending | PM | User stories & acceptance criteria |
-| 2 | The Patient | pending | Dev | Generate the legacy monolith |
+| 1 | The Stories | done | PM | [User stories](docs/user-stories.md) |
+| 2 | The Patient | done | Dev | Legacy monolith generated |
 | 3 | The Map | pending | Dev | Decomposition plan as ADR |
 | 4 | The Pin | pending | Dev | Characterization tests |
 | 5 | The Cut | pending | Dev | Extract first service |
