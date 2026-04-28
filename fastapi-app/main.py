@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 import bcrypt as _bcrypt
@@ -20,10 +20,19 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-in-prod")
 
 app = FastAPI(title="Brennero Logistics — Portale Ordini v2")
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+@app.exception_handler(401)
+async def _redirect_to_login(request: Request, _exc):
+    return RedirectResponse(url="/login", status_code=302)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 templates  = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 engine     = create_engine(f"sqlite:///{DB_PATH}", connect_args={"check_same_thread": False})
+
+# SQLite ignores FK constraints unless enabled per-connection
+@event.listens_for(engine, "connect")
+def _enable_sqlite_fk(dbapi_conn, _):
+    dbapi_conn.execute("PRAGMA foreign_keys = ON")
 def _verify(plain: str, hashed: str) -> bool:
     return _bcrypt.checkpw(plain.encode(), hashed.encode())
 
@@ -37,7 +46,7 @@ def get_db():
 
 def require_auth(request: Request):
     if "username" not in request.session:
-        raise HTTPException(status_code=307, headers={"Location": "/login"})
+        raise HTTPException(status_code=401, detail="Non autenticato")
     return request.session
 
 
