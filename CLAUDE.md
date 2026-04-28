@@ -7,54 +7,66 @@ App: **Brennero Logistics S.p.A.** — portale ordini interni.
 Team of 3.
 
 ## What We Are Building
-Modernizzazione del portale ordini Brennero Logistics: da Java/Servlet/H2 in-memory
-verso Python + framework moderno + DB persistente, con feature nuove su clienti,
+Modernizzazione del portale ordini Brennero Logistics: da Java 8/Servlet/H2 in-memory
+verso Python 3.12 + FastAPI + SQLite persistente, con feature nuove su clienti,
 ordini, reportistica e integrità dati.
 
 ## Stack
 
 ### Legacy (Java — `monolith/`)
-- Language: Java (Servlet puro, no Spring Boot runtime — embedded Tomcat via pom.xml)
+- Language: Java 8 (Servlet puro, embedded Tomcat via pom.xml)
 - Frontend: 6 JSP + JSTL 1.2, vanilla CSS, zero JavaScript
 - Routing: `PortalServlet.java` — God Servlet con `?action=` dispatch
 - DB: H2 in-memory (`jdbc:h2:mem:brennero`), schema da `schema.sql` + `data.sql`
-- Known anomalies: SQL injection, password in chiaro, God class, dipendenze circolari, assenza transazioni, credenziali hardcoded in `DatabaseManager.java`
+- Known anomalies: SQL injection, password plaintext, God class, dipendenze circolari,
+  assenza transazioni, credenziali hardcoded, trigger H2 che chiama classe Java,
+  campo `QTA_MAGAZZINO` duplicato di `GIACENZA`, `STATO` come int senza documenti,
+  clienti duplicati (Trasporti Alpini ID 1 e 7), prodotto fantasma TRN001 (ID 8)
 
-### Target (Python — decisione pendente D-1, D-2)
-- Language: Python 3.11
-- Framework: Flask / FastAPI / Django — **decidere in D-1**
-- Templates: Jinja2 (o equivalente)
-- DB: SQLite persistente (dev) — **decidere D-2 per prod**
-- Frontend: Jinja2 + Chart.js CDN (no build step)
+### Target (Python — stack DECISO, vedi ADR-001 + ADR-002)
+- Language: **Python 3.12**
+- Framework: **FastAPI 0.115.x** + SQLAlchemy 2.x async (aiosqlite)
+- Migrations: **Alembic 1.13.x**
+- Validation: **Pydantic v2**
+- DB: **SQLite 3** (WAL mode) — schema baseline in `decisions/schema-sqlite-v1.sql`
+- Frontend: Jinja2 templates + Chart.js CDN (no build step) — decision deferred
 - Config: `python-dotenv` — nessun secret nel codice
+- Test: pytest 8.x + httpx 0.27.x (async test client)
+- Server: uvicorn 0.29.x
+
+## Decisions Log
+| ID | Decisione | Stato | Owner | Riferimento |
+|----|-----------|-------|-------|-------------|
+| D-1 | Framework Python | ✅ FastAPI | Chiara | ADR-001 |
+| D-2 | DB target | ✅ SQLite 3 + WAL | Chiara | ADR-002 |
+| D-3 | Libreria grafici | ⏳ Chart.js (ipotesi) | Lucia | — |
+| D-4 | Regola sconto | ✅ per-riga + sconto ordine override | Chiara | schema-sqlite-v1.sql |
+| D-5 | Soglia storicizzazione | ⏳ 2 anni (da confermare) | PM | — |
+| D-6 | Strategia migrazione dati | ✅ H2 CSV → Python → SQLite | Chiara | ADR-002 |
 
 ## Team Roles
 | Name | Role | Responsabilità |
 |------|------|----------------|
-| Luca Provvidenza | PM | User stories, ADR structure, CLAUDE.md, commit messages, demo |
-| Chiara Scarpino | Architect | Monolith analysis, ADR-001 Python migration, ADR-002 DB, schema |
-| Lucia Cilento | Dev | Flask scaffold, migrazione route, feature E2 clienti, E3 dashboard |
+| Luca Provvidenza | PM | User stories, docs, ADR structure, commit messages, demo |
+| Chiara Scarpino | Architect | Monolith, ADR-001, ADR-002, schema SQLite, migration strategy |
+| Lucia Cilento | Dev | FastAPI scaffold, route migration, E2 clienti, E3 dashboard |
 
 ## Epics & User Stories
 Dettaglio completo con acceptance criteria: `docs/user-stories.md`
 
-| Epic | Titolo | Priorità |
-|------|--------|----------|
-| E1 | Gestione Ordini — catalogo esteso (TRASPORTO/DOGANA/MAGAZZINO/ASSICURAZIONE/CONSULENZA) | MUST |
-| E2 | Gestione Clienti — anagrafica estesa, ricerca, classificazione Gold/Silver/Bronze | MUST |
-| E3 | Reportistica — dashboard KPI + Chart.js (bar, line, donut) | MUST/SHOULD |
-| E4 | Modernizzazione — Java → Python, fix SQL injection, password hash, God class | MUST |
-| E5 | Integrità Dati — H2 → SQLite, fix schema, storicizzazione ordini > 2 anni | MUST/SHOULD |
+| Epic | Titolo | Stato | Owner |
+|------|--------|-------|-------|
+| E1 | Gestione Ordini — catalogo esteso (5 tipologie) | ⏳ TODO | Lucia |
+| E2 | Gestione Clienti — anagrafica, ricerca, Gold/Silver/Bronze | ⏳ TODO | Lucia |
+| E3 | Reportistica — dashboard KPI + Chart.js | ⏳ TODO | Lucia |
+| E4 | Modernizzazione — FastAPI scaffold + migrazione route | ⏳ TODO | Lucia |
+| E5 | Integrità Dati — migration script H2→SQLite, storicizzazione | ⏳ TODO | Chiara |
 
-## Pending Decisions
-| ID | Decisione | Owner | Impatto |
-|----|-----------|-------|---------|
-| D-1 | Framework Python: Flask vs FastAPI vs Django | Chiara + Lucia | E4 |
-| D-2 | DB target: SQLite vs PostgreSQL | Chiara | E5 |
-| D-3 | Libreria grafici: Chart.js vs Plotly vs D3.js | Lucia | E3 |
-| D-4 | Regola sconto cliente: per riga vs per ordine | PM | E1 |
-| D-5 | Soglia storicizzazione: 2 anni vs 3 anni | PM | E5 |
-| D-6 | Strategia migrazione dati Java → Python | Chiara | E4, E5 |
+## Known Schema Gaps (da risolvere prima di code)
+- `CLIENTI` manca campo `classificazione` (Gold=1/Silver=2/Bronze=3) — E2 richiede
+- `PRODOTTI` manca campo `tipologia` (TRASPORTO/DOGANA/MAGAZZINO/ASSICURAZIONE/CONSULENZA) — E1 richiede
+- `CLIENTI` manca campi: `settore_merceologico`, `referente_commerciale`, `telefono_referente` — E2 richiede
+- `UTENTI` placeholder bcrypt hash — sostituire con seed script reale
 
 ## Conventions
 - Language: English for code and identifiers, Italian allowed in comments/docs
@@ -69,6 +81,6 @@ Dettaglio completo con acceptance criteria: `docs/user-stories.md`
 ## Key Rules
 - Commit often — commit history is judged
 - Every architectural decision → ADR in `/decisions/`
+- Schema changes → nuovo file Alembic migration, non modificare schema-sqlite-v1.sql
 - No hardcoded credentials anywhere
 - Smoke test before every demo
-- User stories + AC in `docs/user-stories.md` — non modificare senza allineare il team
