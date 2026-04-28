@@ -56,11 +56,11 @@ Full user stories with acceptance criteria: `docs/user-stories.md`
 
 | Epic | Title | Status | Owner |
 |------|-------|--------|-------|
-| E1 | Order Management — extended catalog (5 product types) | TODO | Lucia |
-| E2 | Customer Management — extended fields, search, Gold/Silver/Bronze | TODO | Lucia |
-| E3 | Reporting — KPI dashboard + Chart.js | TODO | Lucia |
-| E4 | Modernization — FastAPI scaffold + route migration | TODO | Lucia |
-| E5 | Data Integrity — H2→SQLite migration script, order archival | TODO | Chiara |
+| E1 | Order Management — extended catalog (5 product types) | in progress | Lucia |
+| E2 | Customer Management — extended fields, search, Gold/Silver/Bronze | in progress | Lucia |
+| E3 | Reporting — KPI dashboard + Chart.js | in progress | Lucia |
+| E4 | Modernization — FastAPI scaffold + route migration | in progress | Lucia |
+| E5 | Data Integrity — H2→SQLite migration script, order archival | in progress | Chiara |
 
 ## Known Schema Gaps (must fix before coding E1/E2)
 - `clienti` missing `classificazione` field (gold/silver/bronze) — required by E2
