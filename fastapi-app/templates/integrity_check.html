@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Verifica integrità{% endblock %}
+
+{% block content %}
+<h2>Verifica integrità totali</h2>
+<p style="color:#666;font-size:13px;">
+    Controlla che <strong>importo_netto</strong> dell'ordine corrisponda alla
+    somma di <strong>importo_riga</strong> delle righe. (US-5.1)
+</p>
+
+{% if discrepanze %}
+<div class="errore">
+    Trovate {{ discrepanze|length }} discrepanze.
+</div>
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>Ordine</th>
+            <th>N. righe</th>
+            <th>Totale testata</th>
+            <th>Totale righe</th>
+            <th>Delta</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in discrepanze %}
+        <tr>
+            <td><a href="/order/{{ d.id }}">{{ d.numero_ordine }}</a></td>
+            <td class="numero">{{ d.num_righe }}</td>
+            <td class="importo">€ {{ "%.2f" | format(d.testata) }}</td>
+            <td class="importo">€ {{ "%.2f" | format(d.righe_sum) }}</td>
+            <td class="importo" style="color:#c00;font-weight:bold;">
+                € {{ "%.2f" | format(d.delta) }}
+            </td>
+            <td><a href="/order/{{ d.id }}" class="btn btn-small">Apri</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="note-box" style="background:#d4edda;border-left-color:#28a745;color:#155724;">
+    Nessuna discrepanza rilevata. Tutti i totali sono coerenti.
+</div>
+{% endif %}
+{% endblock %}

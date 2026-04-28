@@ -1,51 +1,101 @@
 {% extends "base.html" %}
-{% block title %}Report{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block head %}
 <script src="{{ request.url_for('static', path='js/chart.min.js') }}"></script>
 {% endblock %}
 
 {% block content %}
-<h2>Report Ordini per Cliente</h2>
+<h2>Dashboard {{ anno }}</h2>
 
 <form method="GET" action="/reports" class="filtri-form">
     <label>Anno:
-        <input type="number" name="anno" value="{{ anno }}" min="2020" max="2030" class="input-anno">
+        <select name="anno" class="input-anno">
+            {% for y in anni_lista %}
+            <option value="{{ y }}" {% if anno == y %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
     </label>
-    <button type="submit" class="btn">Genera</button>
+    <button type="submit" class="btn">Aggiorna</button>
 </form>
 
-<!-- E3: grafico ordini per stato -->
-{% if chart_labels %}
-<div style="max-width:500px;margin:20px 0;">
-    <canvas id="chartStati"></canvas>
-</div>
-<script>
-new Chart(document.getElementById('chartStati'), {
-    type: 'bar',
-    data: {
-        labels: {{ chart_labels | tojson }},
-        datasets: [{
-            label: 'Ordini per stato ({{ anno }})',
-            data: {{ chart_data | tojson }},
-            backgroundColor: {{ chart_colors | tojson }},
-            borderColor: '#1a3a5c',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-    }
-});
-</script>
-{% endif %}
+{# US-3.1: KPI cards #}
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Totale ordini</div>
+        <div class="kpi-value">{{ kpi.totale }}</div>
+        {% if deltas.totale is not none %}
+        <div class="kpi-delta {% if deltas.totale >= 0 %}up{% else %}down{% endif %}">
+            {% if deltas.totale >= 0 %}+{% endif %}{{ deltas.totale }}% vs {{ anno - 1 }}
+        </div>
+        {% else %}
+        <div class="kpi-delta">— nessun dato {{ anno - 1 }}</div>
+        {% endif %}
+    </div>
 
+    <div class="kpi-card">
+        <div class="kpi-label">Fatturato</div>
+        <div class="kpi-value">€ {{ "%.0f" | format(kpi.fatturato) }}</div>
+        {% if deltas.fatturato is not none %}
+        <div class="kpi-delta {% if deltas.fatturato >= 0 %}up{% else %}down{% endif %}">
+            {% if deltas.fatturato >= 0 %}+{% endif %}{{ deltas.fatturato }}% vs {{ anno - 1 }}
+        </div>
+        {% else %}
+        <div class="kpi-delta">— nessun dato {{ anno - 1 }}</div>
+        {% endif %}
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-label">Ordini in lavorazione</div>
+        <div class="kpi-value">{{ kpi.in_progress }}</div>
+        <div class="kpi-delta">confermati + in lavorazione + spediti</div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-label">Ticket medio</div>
+        <div class="kpi-value">€ {{ "%.2f" | format(kpi.ticket) }}</div>
+        {% if deltas.ticket is not none %}
+        <div class="kpi-delta {% if deltas.ticket >= 0 %}up{% else %}down{% endif %}">
+            {% if deltas.ticket >= 0 %}+{% endif %}{{ deltas.ticket }}% vs {{ anno - 1 }}
+        </div>
+        {% else %}
+        <div class="kpi-delta">— nessun dato {{ anno - 1 }}</div>
+        {% endif %}
+    </div>
+</div>
+
+{# US-3.3 + US-3.4: line + donut, side-by-side #}
+<div class="chart-row">
+    <div class="chart-card">
+        <h3>Andamento ordini e fatturato</h3>
+        <canvas id="chartTrend"></canvas>
+    </div>
+    <div class="chart-card chart-donut">
+        <h3>Distribuzione stati</h3>
+        <canvas id="chartStati"></canvas>
+    </div>
+</div>
+
+{# US-3.2: bar chart fatturato per cliente #}
+<div class="chart-card" style="margin-top:20px;">
+    <h3>Fatturato per cliente — {{ anno }}</h3>
+    {% if bar_labels %}
+    <canvas id="chartClienti" height="{{ 60 + (bar_labels|length * 32) }}"></canvas>
+    {% else %}
+    <p class="vuoto" style="text-align:center;color:#999;">Nessun dato per il {{ anno }}</p>
+    {% endif %}
+</div>
+
+{# Tabella dettaglio #}
+<h3 style="margin-top:25px;color:#1a3a5c;">Dettaglio per cliente</h3>
 <table class="tabella-dati">
     <thead>
         <tr>
-            <th>Cliente</th><th>N. Ordini</th><th>Totale</th><th>Media per Ordine</th>
+            <th>Cliente</th>
+            <th>Classif.</th>
+            <th>N. Ordini</th>
+            <th>Totale</th>
+            <th>Media per Ordine</th>
         </tr>
     </thead>
     <tbody>
@@ -54,17 +104,28 @@ new Chart(document.getElementById('chartStati'), {
         {% set ns.tot = ns.tot + (r.totale or 0) %}
         {% set ns.cnt = ns.cnt + r.num_ordini %}
         <tr>
-            <td>{{ r.cliente or 'N/D' }}</td>
+            <td>
+                {% if r.cliente_id %}
+                <a href="/customer/{{ r.cliente_id }}">{{ r.cliente or 'N/D' }}</a>
+                {% else %}{{ r.cliente or 'N/D' }}{% endif %}
+            </td>
+            <td>
+                {% if r.classificazione %}
+                <span class="classificazione classificazione-{{ r.classificazione }}">
+                    {{ cl_label.get(r.classificazione, '?') }}
+                </span>
+                {% else %}-{% endif %}
+            </td>
             <td class="numero">{{ r.num_ordini }}</td>
             <td class="importo">€ {{ "%.2f" | format(r.totale or 0) }}</td>
             <td class="importo">{% if r.media %}€ {{ "%.2f" | format(r.media) }}{% else %}-{% endif %}</td>
         </tr>
         {% else %}
-        <tr><td colspan="4" class="vuoto">Nessun dato per il {{ anno }}</td></tr>
+        <tr><td colspan="5" class="vuoto">Nessun dato per il {{ anno }}</td></tr>
         {% endfor %}
         {% if report %}
         <tr class="totale-riga">
-            <td><strong>TOTALE</strong></td>
+            <td colspan="2"><strong>TOTALE</strong></td>
             <td class="numero"><strong>{{ ns.cnt }}</strong></td>
             <td class="importo"><strong>€ {{ "%.2f" | format(ns.tot) }}</strong></td>
             <td></td>
@@ -72,4 +133,108 @@ new Chart(document.getElementById('chartStati'), {
         {% endif %}
     </tbody>
 </table>
+
+<script>
+// US-3.4: donut chart (count + %)
+{% if donut_labels %}
+const donutTotal = {{ donut_data|sum }};
+new Chart(document.getElementById('chartStati'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ donut_labels | tojson }},
+        datasets: [{
+            data: {{ donut_data | tojson }},
+            backgroundColor: {{ donut_colors | tojson }},
+            borderColor: '#fff',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'right' },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx) {
+                        const v = ctx.parsed;
+                        const pct = donutTotal > 0 ? (v * 100 / donutTotal).toFixed(0) : 0;
+                        return ctx.label + ': ' + v + ' (' + pct + '%)';
+                    }
+                }
+            }
+        }
+    }
+});
+{% endif %}
+
+// US-3.3: line chart trend
+new Chart(document.getElementById('chartTrend'), {
+    type: 'line',
+    data: {
+        labels: {{ line_labels | tojson }},
+        datasets: [
+            {
+                label: 'Ordini',
+                data: {{ line_orders | tojson }},
+                borderColor: '#1a3a5c',
+                backgroundColor: 'rgba(26,58,92,0.1)',
+                yAxisID: 'y1',
+                tension: 0.3
+            },
+            {
+                label: 'Fatturato (€)',
+                data: {{ line_revenue | tojson }},
+                borderColor: '#d4ac0d',
+                backgroundColor: 'rgba(212,172,13,0.1)',
+                yAxisID: 'y2',
+                tension: 0.3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+            y1: { type: 'linear', position: 'left',  beginAtZero: true, title: { display: true, text: 'Ordini' } },
+            y2: { type: 'linear', position: 'right', beginAtZero: true, title: { display: true, text: '€' },
+                  grid: { drawOnChartArea: false } }
+        }
+    }
+});
+
+// US-3.2: horizontal bar chart fatturato per cliente
+{% if bar_labels %}
+const barOrders = {{ bar_orders | tojson }};
+new Chart(document.getElementById('chartClienti'), {
+    type: 'bar',
+    data: {
+        labels: {{ bar_labels | tojson }},
+        datasets: [{
+            label: 'Fatturato (€)',
+            data: {{ bar_data | tojson }},
+            backgroundColor: {{ bar_colors | tojson }},
+            borderColor: '#1a3a5c',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx) {
+                        return ctx.label + ' — ' + barOrders[ctx.dataIndex] + ' ordini, € ' +
+                               ctx.parsed.x.toLocaleString('it-IT', {minimumFractionDigits: 2});
+                    }
+                }
+            }
+        },
+        scales: { x: { beginAtZero: true } }
+    }
+});
+{% endif %}
+</script>
 {% endblock %}

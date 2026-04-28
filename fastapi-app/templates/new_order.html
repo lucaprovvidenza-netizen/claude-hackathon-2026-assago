@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Nuovo Ordine{% endblock %}
+
+{% block content %}
+<h2>Nuovo Ordine</h2>
+
+{% if errore %}
+<div class="errore">{{ errore }}</div>
+{% endif %}
+
+<form method="POST" action="/save-order" id="formOrdine">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <div class="form-section">
+        <h3>Cliente</h3>
+        <select name="idCliente" required class="form-control">
+            <option value="">— Seleziona cliente —</option>
+            {% for c in clienti %}
+            <option value="{{ c.id }}"
+                    data-sconto="{{ c.sconto_default or 0 }}">
+                {{ c.ragione_sociale }}
+                {% if c.citta %}({{ c.citta }}){% endif %}
+                {% if c.sconto_default and c.sconto_default > 0 %} — Sconto {{ c.sconto_default }}%{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-section">
+        <h3>Prodotti</h3>
+        <p style="font-size:12px;color:#666;margin-bottom:10px;">
+            Seleziona i prodotti dalle sezioni per tipologia. Verranno inclusi solo
+            quelli con quantità ≥ 1.
+        </p>
+
+        {% for tip_key, tip_label in tipologie.items() %}
+        {% set lista = prodotti_per_tipologia.get(tip_key, []) %}
+        {% if lista %}
+        <details class="tipologia-block" {% if loop.first %}open{% endif %}>
+            <summary>
+                <span class="tipologia tipologia-{{ tip_key }}">{{ tip_label }}</span>
+                <span style="color:#666;font-size:12px;">— {{ lista|length }} prodotti</span>
+            </summary>
+            <table class="tabella-dati">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">Sel.</th>
+                        <th>Codice</th>
+                        <th>Descrizione</th>
+                        <th>Prezzo Unit.</th>
+                        <th>Giacenza</th>
+                        <th style="width:90px;">Quantità</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in lista %}
+                    <tr>
+                        <td>
+                            <input type="checkbox"
+                                   onchange="toggleRiga(this, '{{ p.id }}')"
+                                   data-id="{{ p.id }}">
+                        </td>
+                        <td>{{ p.codice }}</td>
+                        <td>{{ p.descrizione }}</td>
+                        <td class="importo">€ {{ "%.2f" | format(p.prezzo_unitario) }}</td>
+                        <td class="numero">
+                            {% if p.tipologia == 'MAGAZZINO' and p.giacenza is not none %}
+                                {{ p.giacenza }}
+                            {% else %}
+                                <span style="color:#999">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <input type="hidden" name="prodottoId" value="" data-pid="{{ p.id }}">
+                            <input type="number"
+                                   name="quantita"
+                                   value=""
+                                   min="1"
+                                   {% if p.tipologia == 'MAGAZZINO' and p.giacenza is not none %}max="{{ p.giacenza }}"{% endif %}
+                                   class="input-qty"
+                                   disabled
+                                   data-qty="{{ p.id }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </details>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="form-section">
+        <h3>Note</h3>
+        <textarea name="noteCliente" rows="3" class="form-control"
+                  placeholder="Note per il cliente..."></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Crea Ordine</button>
+        <a href="/orders" class="btn">Annulla</a>
+    </div>
+</form>
+
+<script>
+function toggleRiga(checkbox, pid) {
+    const row = checkbox.closest('tr');
+    const hidden = row.querySelector('input[type="hidden"][data-pid="' + pid + '"]');
+    const qty = row.querySelector('input[type="number"][data-qty="' + pid + '"]');
+    if (checkbox.checked) {
+        hidden.value = pid;
+        qty.disabled = false;
+        if (!qty.value) qty.value = 1;
+        qty.focus();
+    } else {
+        hidden.value = '';
+        qty.disabled = true;
+        qty.value = '';
+    }
+}
+</script>
+{% endblock %}

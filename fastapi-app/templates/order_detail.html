@@ -4,6 +4,10 @@
 {% block content %}
 <h2>Ordine {{ ordine.numero_ordine }}</h2>
 
+{% if errore %}
+<div class="errore">{{ errore }}</div>
+{% endif %}
+
 <div class="dettaglio-grid">
     <div class="dettaglio-sezione">
         <h3>Dati Ordine</h3>
@@ -23,7 +27,22 @@
     <div class="dettaglio-sezione">
         <h3>Cliente</h3>
         <table class="tabella-dettaglio">
-            <tr><td>Ragione Sociale</td><td>{{ ordine.cliente or 'N/D' }}</td></tr>
+            <tr><td>Ragione Sociale</td>
+                <td>
+                    {% if ordine.cliente_id %}
+                        <a href="/customer/{{ ordine.cliente_id }}">{{ ordine.cliente or 'N/D' }}</a>
+                    {% else %}
+                        {{ ordine.cliente or 'N/D' }}
+                    {% endif %}
+                </td></tr>
+            <tr><td>Classificazione</td>
+                <td>
+                    {% if ordine.cliente_classificazione %}
+                    <span class="classificazione classificazione-{{ ordine.cliente_classificazione }}">
+                        {{ cl_label.get(ordine.cliente_classificazione, '?') }}
+                    </span>
+                    {% else %}-{% endif %}
+                </td></tr>
             <tr><td>P.IVA</td><td>{{ ordine.partita_iva or '-' }}</td></tr>
             <tr><td>PEC</td><td>{{ ordine.pec or '-' }}</td></tr>
             <tr><td>Città</td><td>{{ ordine.citta or '-' }}</td></tr>
@@ -63,6 +82,31 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if transizioni_valide %}
+<div class="azioni-ordine">
+    <h3>Cambia Stato</h3>
+    <form method="POST" action="/order/{{ ordine.id }}/status" class="form-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+        <select name="nuovoStato" class="form-control" style="width:200px;">
+            {% for k, v in transizioni_valide.items() %}
+            <option value="{{ k }}">{{ v }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Aggiorna</button>
+    </form>
+    <p style="font-size:11px;color:#666;margin-top:8px;">
+        Stato corrente: <strong>{{ stato_label }}</strong>.
+        Solo le transizioni valide sono mostrate.
+    </p>
+</div>
+{% else %}
+<div class="azioni-ordine">
+    <p style="font-size:12px;color:#666;">
+        Stato finale (<strong>{{ stato_label }}</strong>): nessun cambio possibile.
+    </p>
+</div>
+{% endif %}
 
 <div class="form-actions">
     <a href="/orders" class="btn">← Torna agli ordini</a>

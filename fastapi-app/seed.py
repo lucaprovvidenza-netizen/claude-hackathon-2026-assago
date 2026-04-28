@@ -35,27 +35,31 @@ CREATE TABLE IF NOT EXISTS utenti (
 );
 
 CREATE TABLE IF NOT EXISTS clienti (
-    id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    ragione_sociale  TEXT    NOT NULL,
-    partita_iva      TEXT,
-    codice_fiscale   TEXT,
-    pec              TEXT,
-    codice_sdi       TEXT,
-    indirizzo        TEXT,
-    citta            TEXT,
-    cap              TEXT,
-    provincia        TEXT,
-    paese            TEXT    NOT NULL DEFAULT 'IT',
-    telefono         TEXT,
-    email            TEXT,
-    sconto_default   REAL    NOT NULL DEFAULT 0.0,
+    id                       INTEGER PRIMARY KEY AUTOINCREMENT,
+    ragione_sociale          TEXT    NOT NULL,
+    partita_iva              TEXT,
+    codice_fiscale           TEXT,
+    pec                      TEXT,
+    codice_sdi               TEXT,
+    indirizzo                TEXT,
+    citta                    TEXT,
+    cap                      TEXT,
+    provincia                TEXT,
+    paese                    TEXT    NOT NULL DEFAULT 'IT',
+    telefono                 TEXT,
+    email                    TEXT,
+    -- E2 commercial fields (US-2.1 AC-2)
+    settore_merceologico     TEXT,
+    referente_commerciale    TEXT,
+    telefono_referente       TEXT,
+    sconto_default           REAL    NOT NULL DEFAULT 0.0,
     -- E2: classificazione Gold/Silver/Bronze
-    classificazione  TEXT    NOT NULL DEFAULT 'silver'
-                             CHECK (classificazione IN ('gold','silver','bronze')),
-    attivo           INTEGER NOT NULL DEFAULT 1 CHECK (attivo IN (0,1)),
-    note             TEXT,
-    created_at       TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+    classificazione          TEXT    NOT NULL DEFAULT 'silver'
+                                     CHECK (classificazione IN ('gold','silver','bronze')),
+    attivo                   INTEGER NOT NULL DEFAULT 1 CHECK (attivo IN (0,1)),
+    note                     TEXT,
+    created_at               TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at               TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS prodotti (
@@ -123,11 +127,43 @@ CREATE TABLE IF NOT EXISTS righe_ordine (
     created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_ordini_cliente  ON ordini(id_cliente);
-CREATE INDEX IF NOT EXISTS idx_ordini_stato    ON ordini(stato);
-CREATE INDEX IF NOT EXISTS idx_ordini_priorita ON ordini(priorita);
-CREATE INDEX IF NOT EXISTS idx_righe_ordine    ON righe_ordine(id_ordine);
-CREATE INDEX IF NOT EXISTS idx_clienti_piva    ON clienti(partita_iva);
+CREATE TABLE IF NOT EXISTS ordini_archivio (
+    id                       INTEGER PRIMARY KEY,
+    numero_ordine            TEXT    NOT NULL UNIQUE,
+    id_cliente               INTEGER NOT NULL,
+    stato                    TEXT    NOT NULL,
+    priorita                 TEXT    NOT NULL,
+    data_ordine              TEXT    NOT NULL,
+    data_consegna_prevista   TEXT,
+    data_consegna_effettiva  TEXT,
+    importo_lordo            REAL    NOT NULL DEFAULT 0.0,
+    sconto_percentuale       REAL    NOT NULL DEFAULT 0.0,
+    importo_netto            REAL    NOT NULL DEFAULT 0.0,
+    tipo_spedizione          TEXT,
+    note_interne             TEXT,
+    note_cliente             TEXT,
+    created_by               TEXT,
+    archived_at              TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS righe_ordine_archivio (
+    id               INTEGER PRIMARY KEY,
+    id_ordine        INTEGER NOT NULL REFERENCES ordini_archivio(id) ON DELETE CASCADE,
+    id_prodotto      INTEGER NOT NULL,
+    quantita         INTEGER NOT NULL,
+    prezzo_unitario  REAL    NOT NULL,
+    sconto_riga      REAL    NOT NULL DEFAULT 0.0,
+    importo_riga     REAL    NOT NULL,
+    note             TEXT,
+    created_at       TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_ordini_cliente   ON ordini(id_cliente);
+CREATE INDEX IF NOT EXISTS idx_ordini_stato     ON ordini(stato);
+CREATE INDEX IF NOT EXISTS idx_ordini_priorita  ON ordini(priorita);
+CREATE INDEX IF NOT EXISTS idx_righe_ordine     ON righe_ordine(id_ordine);
+CREATE INDEX IF NOT EXISTS idx_clienti_piva     ON clienti(partita_iva);
+CREATE INDEX IF NOT EXISTS idx_archivio_cliente ON ordini_archivio(id_cliente);
 """
 
 # mapping stato INT monolite → TEXT enum
@@ -137,13 +173,43 @@ STATO_MAP = {0:"bozza",1:"confermato",2:"in_lavorazione",
 
 def init_db():
     with engine.begin() as conn:
-        for stmt in SCHEMA.split(";"):
-            s = stmt.strip()
-            if s:
-                conn.execute(text(s))
+        managed_by_alembic = conn.execute(text(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='alembic_version'"
+        )).fetchone()
+        if managed_by_alembic:
+            print("Schema gestito da Alembic — skip CREATE, eseguo solo seed.")
+        else:
+            for stmt in SCHEMA.split(";"):
+                s = stmt.strip()
+                if s:
+                    conn.execute(text(s))
+            _upgrade_clienti_v2(conn)
 
     _seed()
     print("Database inizializzato.")
+
+
+def _upgrade_clienti_v2(conn):
+    """Add E2 columns to an existing v1 clienti table; ignore duplicates."""
+    columns = [
+        ("codice_fiscale",        "TEXT"),
+        ("pec",                   "TEXT"),
+        ("codice_sdi",            "TEXT"),
+        ("cap",                   "TEXT"),
+        ("provincia",             "TEXT"),
+        ("paese",                 "TEXT NOT NULL DEFAULT 'IT'"),
+        ("settore_merceologico",  "TEXT"),
+        ("referente_commerciale", "TEXT"),
+        ("telefono_referente",    "TEXT"),
+        ("classificazione",       "TEXT NOT NULL DEFAULT 'silver'"),
+        ("note",                  "TEXT"),
+    ]
+    for col, ddl in columns:
+        try:
+            conn.execute(text(f"ALTER TABLE clienti ADD COLUMN {col} {ddl}"))
+        except Exception:
+            # SQLite raises on duplicate column; safe to ignore
+            pass
 
 
 def _seed():
@@ -154,14 +220,22 @@ def _seed():
         ("gbianchi",    "Gbianchi1!","Giuseppe Bianchi",       "magazzino"),
         ("report_user", "report",    "Utente Report",          "report"),
     ]
+    # (rs, p_iva, indirizzo, citta, telefono, email, sconto, classif,
+    #  cap, provincia, pec, codice_sdi, settore, referente, tel_ref)
     clienti = [
-        ("Trasporti Alpini S.r.l.",       "01234567890", "Via Roma 42",              "Bolzano",  "+39 0471 555001", "ordini@trasportialpini.it",  5.0,  "gold"),
-        ("LogiNord S.p.A.",               "09876543210", "Viale Europa 15",          "Trento",   "+39 0461 555002", "acquisti@loginord.com",       0.0,  "silver"),
-        ("Spedizioni Veloci di Conti G.", "11223344556", "Via Brennero 88",          "Vipiteno", None,             None,                           10.0, "silver"),
-        ("MegaStore Italia S.r.l.",       "66778899001", "Centro Direzionale Km 2",  "Milano",   "+39 02 555003",  "procurement@megastore.it",    3.5,  "gold"),
-        ("F.lli Marchetti & C.",          "55443322110", "Zona Industriale 7",       "Rovereto", "+39 0464 555004","info@marchetti.com",           0.0,  "bronze"),
-        # cliente duplicato del monolite — preservato per characterization test
-        ("Trasporti Alpini Srl",          "01234567890", "Via Roma, 42",             "Bolzano",  "0471555001",     "ordini@trasporti-alpini.it",  5.0,  "gold"),
+        ("Trasporti Alpini S.r.l.",       "01234567890", "Via Roma 42",              "Bolzano",  "+39 0471 555001", "ordini@trasportialpini.it",   5.0,  "gold",
+         "39100", "BZ", "trasportialpini@pec.it",  "M5UXCR1", "Trasporti su gomma",  "Marco Bianchi",   "+39 348 1234567"),
+        ("LogiNord S.p.A.",               "09876543210", "Viale Europa 15",          "Trento",   "+39 0461 555002", "acquisti@loginord.com",       0.0,  "silver",
+         "38122", "TN", "loginord@pec.it",         "USAL8PV", "Logistica integrata", "Anna Rossi",      "+39 335 9876543"),
+        ("Spedizioni Veloci di Conti G.", "11223344556", "Via Brennero 88",          "Vipiteno", None,              None,                          10.0, "silver",
+         "39049", "BZ", None,                      None,      "Corriere espresso",   "Giuseppe Conti",  None),
+        ("MegaStore Italia S.r.l.",       "66778899001", "Centro Direzionale Km 2",  "Milano",   "+39 02 555003",   "procurement@megastore.it",    3.5,  "gold",
+         "20100", "MI", "megastore@pec.it",        "T04ZHR3", "Retail GDO",          "Laura Verdi",     "+39 320 1112233"),
+        ("F.lli Marchetti & C.",          "55443322110", "Zona Industriale 7",       "Rovereto", "+39 0464 555004", "info@marchetti.com",          0.0,  "bronze",
+         "38068", "TN", None,                      None,      "Manifatturiero",      "Paolo Marchetti", "+39 348 5556677"),
+        # legacy duplicate — preserved for characterization test
+        ("Trasporti Alpini Srl",          "01234567890", "Via Roma, 42",             "Bolzano",  "0471555001",      "ordini@trasporti-alpini.it",  5.0,  "gold",
+         "39100", "BZ", None,                      None,      "Trasporti su gomma",  "Marco Bianchi",   None),
     ]
     prodotti = [
         ("TRN-001", "Trasporto Standard Nazionale (per pallet)",  85.0,  22, "TRASPORTO",   None),
@@ -221,10 +295,16 @@ def _seed():
         for i, c in enumerate(clienti, 1):
             conn.execute(text(
                 "INSERT OR IGNORE INTO clienti "
-                "(id,ragione_sociale,partita_iva,indirizzo,citta,telefono,email,sconto_default,classificazione) "
-                "VALUES (:id,:rs,:pi,:ind,:ci,:tel,:em,:sc,:cl)"
+                "(id,ragione_sociale,partita_iva,indirizzo,citta,telefono,email,"
+                " sconto_default,classificazione,cap,provincia,pec,codice_sdi,"
+                " settore_merceologico,referente_commerciale,telefono_referente) "
+                "VALUES (:id,:rs,:pi,:ind,:ci,:tel,:em,"
+                " :sc,:cl,:cap,:prov,:pec,:sdi,"
+                " :sett,:ref,:tref)"
             ), {"id":i,"rs":c[0],"pi":c[1],"ind":c[2],"ci":c[3],
-                "tel":c[4],"em":c[5],"sc":c[6],"cl":c[7]})
+                "tel":c[4],"em":c[5],"sc":c[6],"cl":c[7],
+                "cap":c[8],"prov":c[9],"pec":c[10],"sdi":c[11],
+                "sett":c[12],"ref":c[13],"tref":c[14]})
 
         for i, p in enumerate(prodotti, 1):
             conn.execute(text(

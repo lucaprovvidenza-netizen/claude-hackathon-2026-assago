@@ -25,29 +25,34 @@ orders, customers, reporting, and data integrity.
 - Known anomalies: SQL injection, plaintext passwords, circular dependencies,
   missing transactions, H2 trigger calling a Java class, duplicate field `QTA_MAGAZZINO`
 
-**Target — Python:**
-- FastAPI + SQLAlchemy 2.x async + Alembic migrations
+**Target — Python (in `fastapi-app/`):**
+- FastAPI 0.115 + SQLAlchemy 2.x + Alembic migrations
 - SQLite 3 WAL mode — persistent data
-- Customer classification Gold / Silver / Bronze with color badge
-- Global search by customer name and product
-- Extended catalog: TRANSPORT, CUSTOMS, WAREHOUSE, INSURANCE, CONSULTING
-- KPI dashboard with Chart.js (bar, line, donut)
+- Customer classification Gold / Silver / Bronze with color badge + edit
+- Global search bar (header) — clienti + prodotti raggruppati
+- Extended catalog: TRASPORTO, DOGANA, MAGAZZINO, ASSICURAZIONE, CONSULENZA
+- Order workflow: Bozza → Confermato → In Lavorazione → Spedito → Consegnato
+- KPI dashboard with Chart.js — KPI cards + bar fatturato/cliente + line trend mensile + donut stati
+- Integrity check job (US-5.1) + archive job +2anni con restore (US-5.3)
 - Credentials via `.env` — zero hardcoded secrets
-- Security fixes: parameterized queries, bcrypt, CSRF protection, security headers
+- Security: parameterized queries, bcrypt, CSRF tokens su tutti i POST,
+  security headers (X-Frame-Options DENY, CSP, Referrer-Policy),
+  session timeout 30 min
 
-## Challenges Attempted
+## Challenges Status
 | Challenge | Status | Owner |
 |-----------|--------|-------|
-| 1 — The Stories: user stories + AC for 5 epics | done | Luca |
+| 1 — The Stories: 17 user stories + AC for 5 epics | done | Luca |
 | 2 — The Patient: Java legacy monolith generated | done | Chiara |
 | ADR-001: Java → Python (FastAPI decided) | done | Chiara |
-| ADR-002: H2 → SQLite (migration strategy defined) | done | Chiara |
-| SQLite schema v1 (baseline with E2 fields) | done | Chiara |
-| E4 — FastAPI scaffold + route migration | in progress | Lucia |
-| E2 — Customer management + Gold/Silver/Bronze + search | in progress | Lucia |
-| E1 — Extended order catalog (5 product types) | in progress | Lucia |
-| E3 — Chart.js dashboard | in progress | Lucia |
-| E5 — H2→SQLite migration script + order archival | in progress | Chiara |
+| ADR-002: H2 → SQLite (migration strategy + cutover plan) | done | Chiara |
+| SQLite schema v2 (classificazione, tipologia, archivio) | done | Chiara |
+| Alembic baseline migration (`0001_initial_schema_v2.py`) | done | Chiara |
+| **E1** — Extended order catalog (5 tipologie), creazione ordini transazionale, workflow stati | done | Lucia |
+| **E2** — Customer extended registry, edit Gold/Silver/Bronze, global search bar | done | Lucia |
+| **E3** — KPI dashboard + Chart.js (bar fatturato cliente, line trend, donut stati) | done | Lucia |
+| **E4** — FastAPI scaffold + route migration + sicurezza (CSRF, headers, 30min session) | done | Lucia |
+| **E5** — Integrity check + archivio ordini con restore | done | Chiara |
 | 3 — The Map: decomposition ADR with seam ranking | pending | Chiara |
 
 ## Key Decisions
@@ -64,18 +69,27 @@ orders, customers, reporting, and data integrity.
 ### Legacy Java
 ```bash
 cd monolith
-mvn spring-boot:run
+mvn compile exec:java -Dexec.mainClass=com.brennero.portal.PortalLauncher
 ```
-Open `http://localhost:8080` — login: `admin` / `admin`
+Open `http://localhost:8080` — login: `admin` / `admin123`
 
-### Python target
+### Python target (FastAPI)
 ```bash
+cd fastapi-app
 cp .env.example .env
 pip install -r requirements.txt
+
+# option A — Alembic-managed schema (recommended)
 alembic upgrade head
-uvicorn app.main:app --reload
+python seed.py    # populates demo data
+
+# option B — single-shot bootstrap (idempotent CREATE IF NOT EXISTS)
+python seed.py
+
+uvicorn main:app --reload
 ```
-Open `http://localhost:8000` — API docs at `http://localhost:8000/docs`
+Open `http://localhost:8000` — login: `admin` / `admin123`
+API docs auto-generated at `http://localhost:8000/docs`
 
 ## Repository Structure
 ```

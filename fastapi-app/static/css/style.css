@@ -59,6 +59,29 @@ body {
     color: #aaa;
 }
 
+/* E2: search bar nel header */
+.header-search {
+    margin: 0 15px;
+    flex: 0 0 240px;
+}
+.header-search input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #2a4d75;
+    background: #14304d;
+    color: white;
+    border-radius: 3px;
+    font-size: 13px;
+}
+.header-search input::placeholder {
+    color: #88a;
+}
+.header-search input:focus {
+    outline: none;
+    border-color: #aac;
+    background: #1a3a5c;
+}
+
 .user-info a {
     color: #ccc;
 }
@@ -421,3 +444,80 @@ textarea.form-control {
 .stato-spedito        { background: #cce5ff;  color: #004085; }
 .stato-consegnato     { background: #d1ecf1;  color: #0c5460; }
 .stato-annullato      { background: #f8d7da;  color: #721c24; }
+
+/* E3: KPI cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 15px 0 20px;
+}
+.kpi-card {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-left: 4px solid #1a3a5c;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.kpi-label {
+    font-size: 11px; color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.kpi-value {
+    font-size: 24px; color: #1a3a5c; font-weight: bold;
+    margin: 6px 0 4px;
+    font-family: 'Courier New', monospace;
+}
+.kpi-delta { font-size: 11px; color: #666; }
+.kpi-delta.up   { color: #155724; font-weight: bold; }
+.kpi-delta.down { color: #721c24; font-weight: bold; }
+
+/* E3: chart cards */
+.chart-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 15px;
+    margin: 15px 0;
+}
+.chart-card {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 4px;
+    padding: 15px;
+}
+.chart-card h3 {
+    color: #1a3a5c; font-size: 13px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+.chart-donut canvas { max-height: 240px; }
+
+/* E1: Tipologia prodotto */
+.tipologia {
+    padding: 3px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: bold; text-transform: uppercase;
+}
+.tipologia-TRASPORTO     { background: #cce5ff; color: #004085; }
+.tipologia-DOGANA        { background: #fff3cd; color: #856404; }
+.tipologia-MAGAZZINO     { background: #d4edda; color: #155724; }
+.tipologia-ASSICURAZIONE { background: #f8d7da; color: #721c24; }
+.tipologia-CONSULENZA    { background: #e2e3e5; color: #383d41; }
+
+/* E1: blocchi tipologia nel form nuovo ordine */
+.tipologia-block {
+    margin: 12px 0;
+    padding: 12px;
+    background: #f8f9fa;
+    border-left: 4px solid #1a3a5c;
+    border-radius: 0 4px 4px 0;
+}
+.tipologia-block summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 6px;
+    user-select: none;
+}
+.tipologia-block summary:hover { color: #1a3a5c; }
+.tipologia-block[open] summary { margin-bottom: 10px; }

@@ -11,9 +11,15 @@
     <span class="logo">Brennero Logistics</span>
     <nav>
         <a href="/orders"    {% if request.url.path == '/orders'    %}class="active"{% endif %}>Ordini</a>
+        <a href="/products"  {% if request.url.path == '/products'  %}class="active"{% endif %}>Catalogo</a>
         <a href="/customers" {% if request.url.path == '/customers' %}class="active"{% endif %}>Clienti</a>
         <a href="/reports"   {% if request.url.path == '/reports'   %}class="active"{% endif %}>Report</a>
+        <a href="/new-order" class="btn btn-small {% if request.url.path == '/new-order' %}active{% endif %}">+ Nuovo Ordine</a>
     </nav>
+    <form method="GET" action="/search" class="header-search">
+        <input type="text" name="q" placeholder="Cerca cliente o prodotto..."
+               value="{{ request.query_params.get('q', '') }}">
+    </form>
     <span class="user-info">
         {{ request.session.nome_completo }} ({{ request.session.ruolo }})
         | <a href="/logout">Esci</a>
@@ -26,6 +32,10 @@
 
 <div class="footer">
     Brennero Logistics S.p.A. — Portale Ordini v2.0 (FastAPI)
+    {% if request.session.ruolo == 'admin' %}
+    | <a href="/archive">Archivio</a>
+    | <a href="/admin/integrity-check">Verifica integrità</a>
+    {% endif %}
 </div>
 </body>
 </html>

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Catalogo Prodotti{% endblock %}
+
+{% block content %}
+<h2>Catalogo Prodotti</h2>
+
+<form method="GET" action="/products" class="filtri-form">
+    <label>Tipologia:
+        <select name="filtroTipologia">
+            <option value="">Tutte</option>
+            {% for k, v in tipologie.items() %}
+            <option value="{{ k }}" {% if filtroTipologia == k %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit" class="btn">Filtra</button>
+    {% if filtroTipologia %}
+    <a href="/products" class="btn">Azzera</a>
+    {% endif %}
+</form>
+
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>Codice</th>
+            <th>Descrizione</th>
+            <th>Tipologia</th>
+            <th>Prezzo Unit.</th>
+            <th>IVA</th>
+            <th>Giacenza</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in prodotti %}
+        <tr>
+            <td>{{ p.codice }}</td>
+            <td>{{ p.descrizione or '-' }}</td>
+            <td>
+                <span class="tipologia tipologia-{{ p.tipologia }}">
+                    {{ tipologie.get(p.tipologia, p.tipologia) }}
+                </span>
+            </td>
+            <td class="importo">€ {{ "%.2f" | format(p.prezzo_unitario) }}</td>
+            <td class="numero">{{ p.aliquota_iva }}%</td>
+            <td class="numero">
+                {% if p.tipologia == 'MAGAZZINO' and p.giacenza is not none %}
+                    {{ p.giacenza }}
+                {% else %}
+                    <span style="color:#999">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="vuoto">Nessun prodotto trovato</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

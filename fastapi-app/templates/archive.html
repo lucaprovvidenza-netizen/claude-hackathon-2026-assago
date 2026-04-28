@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Archivio ordini{% endblock %}
+
+{% block content %}
+<h2>Archivio ordini</h2>
+
+{% if request.query_params.get('moved') %}
+<div class="note-box" style="background:#d4edda;border-left-color:#28a745;color:#155724;">
+    Archiviati {{ request.query_params.get('moved') }} ordini.
+</div>
+{% endif %}
+
+<form method="POST" action="/admin/archive" style="margin-bottom:15px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <button type="submit" class="btn btn-primary"
+            onclick="return confirm('Archiviare ordini chiusi più vecchi di 2 anni?');">
+        Esegui archiviazione
+    </button>
+    <span style="font-size:12px;color:#666;margin-left:10px;">
+        Sposta ordini con stato finale (Consegnato/Annullato) e data &gt; 2 anni.
+    </span>
+</form>
+
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>N. Ordine</th>
+            <th>Cliente</th>
+            <th>Classif.</th>
+            <th>Data Ordine</th>
+            <th>Stato</th>
+            <th>Importo</th>
+            <th>Archiviato</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in ordini %}
+        <tr>
+            <td>{{ o.numero_ordine }}</td>
+            <td>{{ o.cliente or 'N/D' }}</td>
+            <td>
+                {% if o.classificazione %}
+                <span class="classificazione classificazione-{{ o.classificazione }}">
+                    {{ cl_label.get(o.classificazione, '?') }}
+                </span>
+                {% else %}-{% endif %}
+            </td>
+            <td>{{ o.data_ordine[:10] if o.data_ordine else '-' }}</td>
+            <td><span class="stato stato-{{ o.stato }}">{{ stati.get(o.stato, o.stato) }}</span></td>
+            <td class="importo">€ {{ "%.2f" | format(o.importo_netto or 0) }}</td>
+            <td>{{ o.archived_at[:10] if o.archived_at else '-' }}</td>
+            <td>
+                <form method="POST" action="/admin/archive/{{ o.id }}/restore"
+                      style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+                    <button type="submit" class="btn btn-small">Ripristina</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="vuoto">Nessun ordine archiviato</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

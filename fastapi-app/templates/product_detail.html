@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Prodotto {{ prodotto.codice }}{% endblock %}
+
+{% block content %}
+<h2>
+    {{ prodotto.codice }}
+    <span class="tipologia tipologia-{{ prodotto.tipologia }}">
+        {{ tipologie.get(prodotto.tipologia, prodotto.tipologia) }}
+    </span>
+</h2>
+
+<div class="dettaglio-sezione">
+    <h3>Dettagli prodotto</h3>
+    <table class="tabella-dettaglio">
+        <tr><td>Codice</td><td><strong>{{ prodotto.codice }}</strong></td></tr>
+        <tr><td>Descrizione</td><td>{{ prodotto.descrizione or '-' }}</td></tr>
+        <tr><td>Tipologia</td><td>{{ tipologie.get(prodotto.tipologia, prodotto.tipologia) }}</td></tr>
+        <tr><td>Categoria</td><td>{{ prodotto.categoria or '-' }}</td></tr>
+        <tr><td>Prezzo unitario</td><td>€ {{ "%.2f" | format(prodotto.prezzo_unitario) }}</td></tr>
+        <tr><td>Aliquota IVA</td><td>{{ prodotto.aliquota_iva }}%</td></tr>
+        <tr><td>Giacenza</td><td>
+            {% if prodotto.tipologia == 'MAGAZZINO' and prodotto.giacenza is not none %}
+                {{ prodotto.giacenza }}
+            {% else %}
+                <span style="color:#999;">— servizio, nessuna giacenza —</span>
+            {% endif %}
+        </td></tr>
+        <tr><td>Stato</td><td>
+            {% if prodotto.attivo %}
+                <span class="stato stato-confermato">Attivo</span>
+            {% else %}
+                <span class="stato stato-annullato">Disattivo</span>
+            {% endif %}
+        </td></tr>
+    </table>
+</div>
+
+<div class="form-actions">
+    <a href="/products" class="btn">← Torna al catalogo</a>
+</div>
+{% endblock %}

@@ -80,11 +80,27 @@ The Brennero Logistics order portal is a Java 8 / JSP / embedded Tomcat monolith
 ```
 Python          3.12
 FastAPI         0.115.x
-SQLAlchemy      2.0.x  (async, via aiosqlite)
+SQLAlchemy      2.0.x  (sync — see Update 2026-04-28)
 Alembic         1.13.x
 Pydantic        2.x
-aiosqlite       0.20.x
 uvicorn         0.29.x  (ASGI server)
-pytest          8.x
-httpx           0.27.x  (async test client)
+pytest          8.x    (planned post-MVP)
+httpx           0.27.x (used in smoke tests)
 ```
+
+---
+
+## Update 2026-04-28 — Sync vs Async (D-7)
+
+The original decision called for `SQLAlchemy 2.x async + aiosqlite`. During implementation we
+opted for the **synchronous** SQLAlchemy API. Rationale:
+
+- SQLite is a single-writer DB; async I/O does not unlock concurrency benefits the way it would
+  for PostgreSQL/MySQL.
+- `aiosqlite` adds a thread-pool layer with no measurable latency gain for hackathon-scale traffic.
+- Sync code paths kept the FastAPI routes uniform and the smoke tests simpler.
+- All scripts (Alembic, `seed.py`, ad-hoc utilities) remain plain sync SQLAlchemy.
+
+The framework choice (FastAPI), the ORM (SQLAlchemy 2.x), and Alembic are unchanged. Switching
+to async at a later stage is a localised refactor (`create_engine` → `create_async_engine`,
+sessions/connections in routes become awaitable) with no schema or contract impact.

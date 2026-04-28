@@ -41,55 +41,69 @@ orders, customers, reporting, and data integrity.
 |-----------|--------|-------|
 | 1 — The Stories: 5 epics, 17 user stories, full AC, stakeholder conflicts | done | Luca |
 | 2 — The Patient: Java legacy monolith with real anomalies | done | Chiara |
-| ADR-001: Java → Python (FastAPI + SQLAlchemy selected, rationale documented) | done | Chiara |
+| ADR-001: Java → Python (FastAPI + SQLAlchemy selected, sync update note) | done | Chiara |
 | ADR-002: H2 → SQLite (migration strategy, data quality issues, cutover plan) | done | Chiara |
-| SQLite schema v1: modernized baseline with E2 fields, enums, FK, WAL | done | Chiara |
+| SQLite schema v2: classificazione, tipologia, tabelle archivio | done | Chiara |
+| Alembic baseline migration `0001_initial_schema_v2.py` | done | Chiara |
+| **E1** — Extended catalog 5 tipologie + creazione ordini transazionale + workflow stati | done | Lucia |
+| **E2** — Customer extended (PEC/SDI/settore/referente), edit Gold/Silver/Bronze, global search | done | Lucia |
+| **E3** — KPI dashboard (4 cards + delta YoY) + bar/line/donut Chart.js | done | Lucia |
+| **E4** — FastAPI scaffold + route migration + sicurezza (CSRF, CSP, X-Frame-Options, 30min session) | done | Lucia |
+| **E5** — Integrity check (US-5.1) + archive +2anni con restore (US-5.3) | done | Chiara |
 
-## Challenges In Progress
+## Open
 | Challenge | Status | Owner |
 |-----------|--------|-------|
-| E4 — FastAPI app scaffold + route migration from Java | in progress | Lucia |
-| E2 — Customer Gold/Silver/Bronze + extended fields + search | in progress | Lucia |
-| E1 — Extended order catalog (5 product types) | in progress | Lucia |
-| E3 — KPI dashboard with Chart.js | in progress | Lucia |
-| E5 — H2→SQLite migration script + order archival | in progress | Chiara |
 | 3 — The Map: decomposition ADR with seam risk ranking | pending | Chiara |
+| pytest test suite (smoke harness used during dev) | pending | team |
+| Docker Compose for zero-config run | pending | team |
 
 ## Key Decisions
-| Decision | Choice | ADR |
-|----------|--------|-----|
-| Python framework | FastAPI 0.115.x | ADR-001 |
-| ORM | SQLAlchemy 2.x async | ADR-001 |
-| Migrations | Alembic 1.13.x | ADR-001 |
-| Database | SQLite 3 + WAL mode | ADR-002 |
-| Data migration | H2 CSV export → Python → SQLite | ADR-002 |
-| Discount rule | per-line + order-level override | schema-sqlite-v1.sql |
+| ID | Decision | Choice | Reference |
+|----|----------|--------|-----------|
+| D-1 | Python framework | FastAPI 0.115.x | ADR-001 |
+| D-2 | Database | SQLite 3 + WAL mode | ADR-002 |
+| D-3 | Chart library | Chart.js (self-hosted) | reports.html |
+| D-4 | Discount rule | applied per-line in `save_order` | main.py |
+| D-5 | Archive threshold | 2 years (730 days, env-overridable) | main.py |
+| D-6 | Data migration | H2 CSV export → Python → SQLite | ADR-002 |
+| D-7 | SQLAlchemy mode | sync (async planned post-MVP) | ADR-001 update note |
 
 ## How to Run It
 
-### Legacy Java (working)
+### Legacy Java (still runnable — H2 in-memory)
 ```bash
 cd monolith
-mvn spring-boot:run
+mvn compile exec:java -Dexec.mainClass=com.brennero.portal.PortalLauncher
 ```
-Open `http://localhost:8080` — login: `admin` / `admin`
+Open `http://localhost:8080` — login: `admin` / `admin123`
 
-### Python target (in progress — not yet runnable)
+### Python target (working — `fastapi-app/`)
 ```bash
+cd fastapi-app
 cp .env.example .env
 pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --reload
+alembic upgrade head    # schema (option A — recommended)
+python seed.py          # demo data
+uvicorn main:app --reload
 ```
-Open `http://localhost:8000` — API docs at `http://localhost:8000/docs`
+Open `http://localhost:8000` — login: `admin` / `admin123`
+API docs at `http://localhost:8000/docs`
 
 ## Repository Structure
 ```
 monolith/                     Java legacy app — Brennero Logistics
+fastapi-app/
+  main.py                     FastAPI app: routes, security middleware, CSRF, archive
+  seed.py                     Demo data bootstrap (idempotent, Alembic-aware)
+  alembic/                    Schema migrations (baseline = schema v2)
+  templates/                  Jinja2 templates
+  static/                     CSS + Chart.js
 decisions/
-  ADR-001-java-to-python.md   FastAPI selection rationale
-  ADR-002-h2-to-sqlite.md     SQLite selection + full migration strategy
-  schema-sqlite-v1.sql        Modernized SQLite schema (baseline)
+  ADR-001-java-to-python.md   FastAPI selection rationale + sync update note
+  ADR-002-h2-to-sqlite.md     SQLite selection + migration strategy
+  schema-sqlite-v1.sql        Baseline (kept for history)
+  schema-sqlite-v2.sql        Active schema (classificazione, tipologia, archivio)
 docs/
   user-stories.md             5 epics, 17 stories, acceptance criteria
   pm-session-prompt.md        Claude Code PM session template

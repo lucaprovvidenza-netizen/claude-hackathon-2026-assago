@@ -31,12 +31,13 @@
             <th>Email</th>
             <th>Classificazione</th>
             <th>Sconto</th>
+            <th>Azioni</th>
         </tr>
     </thead>
     <tbody>
         {% for c in clienti %}
         <tr>
-            <td>{{ c.ragione_sociale }}</td>
+            <td><a href="/customer/{{ c.id }}">{{ c.ragione_sociale }}</a></td>
             <td>{{ c.partita_iva or '-' }}</td>
             <td>{{ c.citta or '-' }}</td>
             <td>{{ c.email or '-' }}</td>
@@ -46,9 +47,10 @@
                 </span>
             </td>
             <td>{{ c.sconto_default ~ '%' if c.sconto_default else '-' }}</td>
+            <td><a href="/customer/{{ c.id }}" class="btn btn-small">Dettaglio</a></td>
         </tr>
         {% else %}
-        <tr><td colspan="6" class="vuoto">Nessun cliente trovato</td></tr>
+        <tr><td colspan="7" class="vuoto">Nessun cliente trovato</td></tr>
         {% endfor %}
     </tbody>
 </table>

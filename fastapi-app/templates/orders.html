@@ -16,6 +16,14 @@
             {% endfor %}
         </select>
     </label>
+    <label>Tipologia:
+        <select name="filtroTipologia">
+            <option value="">Tutte</option>
+            {% for k, v in tipologie.items() %}
+            <option value="{{ k }}" {% if filtroTipologia == k %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </label>
     <label>Da:
         <input type="date" name="dataDa" value="{{ dataDa }}">
     </label>
@@ -23,7 +31,7 @@
         <input type="date" name="dataA" value="{{ dataA }}">
     </label>
     <button type="submit" class="btn">Filtra</button>
-    {% if filtroCliente or filtroStato or dataDa or dataA %}
+    {% if filtroCliente or filtroStato or filtroTipologia or dataDa or dataA %}
     <a href="/orders" class="btn">Azzera</a>
     {% endif %}
 </form>

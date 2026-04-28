@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Ricerca: {{ q }}{% endblock %}
+
+{% block content %}
+<h2>Risultati ricerca {% if q %}— "{{ q }}"{% endif %}</h2>
+
+<form method="GET" action="/search" class="filtri-form">
+    <label style="flex:1;">Termine:
+        <input type="text" name="q" value="{{ q }}" placeholder="Cerca cliente o prodotto..."
+               autofocus class="form-control">
+    </label>
+    <button type="submit" class="btn btn-primary">Cerca</button>
+</form>
+
+{% if not q %}
+<p style="color:#666;font-style:italic;">Inserisci un termine di ricerca.</p>
+
+{% else %}
+
+<h3 style="margin-top:20px;color:#1a3a5c;">Clienti ({{ clienti|length }})</h3>
+{% if clienti %}
+<table class="tabella-dati">
+    <thead>
+        <tr><th>Ragione Sociale</th><th>Città</th><th>Classificazione</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for c in clienti %}
+        <tr>
+            <td><a href="/customer/{{ c.id }}">{{ c.ragione_sociale }}</a></td>
+            <td>{{ c.citta or '-' }}</td>
+            <td>
+                <span class="classificazione classificazione-{{ c.classificazione }}">
+                    {{ cl_label.get(c.classificazione, '?') }}
+                </span>
+            </td>
+            <td><a href="/customer/{{ c.id }}" class="btn btn-small">Apri</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="color:#999;font-style:italic;">Nessun cliente corrispondente.</p>
+{% endif %}
+
+<h3 style="margin-top:20px;color:#1a3a5c;">Prodotti ({{ prodotti|length }})</h3>
+{% if prodotti %}
+<table class="tabella-dati">
+    <thead>
+        <tr><th>Codice</th><th>Descrizione</th><th>Tipologia</th><th>Prezzo</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for p in prodotti %}
+        <tr>
+            <td><a href="/product/{{ p.id }}">{{ p.codice }}</a></td>
+            <td>{{ p.descrizione }}</td>
+            <td>
+                <span class="tipologia tipologia-{{ p.tipologia }}">
+                    {{ tipologie.get(p.tipologia, p.tipologia) }}
+                </span>
+            </td>
+            <td class="importo">€ {{ "%.2f" | format(p.prezzo_unitario) }}</td>
+            <td><a href="/product/{{ p.id }}" class="btn btn-small">Apri</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="color:#999;font-style:italic;">Nessun prodotto corrispondente.</p>
+{% endif %}
+
+{% endif %}
+{% endblock %}

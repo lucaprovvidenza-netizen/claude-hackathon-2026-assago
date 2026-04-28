@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Cliente {{ cliente.ragione_sociale }}{% endblock %}
+
+{% block content %}
+<h2>
+    {{ cliente.ragione_sociale }}
+    <span class="classificazione classificazione-{{ cliente.classificazione }}">
+        {{ cl_label.get(cliente.classificazione, '?') }}
+    </span>
+</h2>
+
+{% if saved %}
+<div class="note-box" style="background:#d4edda;border-left-color:#28a745;color:#155724;">
+    Modifiche salvate.
+</div>
+{% endif %}
+
+<div class="dettaglio-grid">
+    <div class="dettaglio-sezione">
+        <h3>Anagrafica</h3>
+        <table class="tabella-dettaglio">
+            <tr><td>Ragione Sociale</td><td><strong>{{ cliente.ragione_sociale }}</strong></td></tr>
+            <tr><td>P.IVA</td><td>{{ cliente.partita_iva or '-' }}</td></tr>
+            <tr><td>Codice Fiscale</td><td>{{ cliente.codice_fiscale or '-' }}</td></tr>
+            <tr><td>Indirizzo</td><td>{{ cliente.indirizzo or '-' }}</td></tr>
+            <tr><td>CAP / Città</td>
+                <td>{{ cliente.cap or '-' }} {{ cliente.citta or '' }}</td></tr>
+            <tr><td>Provincia / Paese</td>
+                <td>{{ cliente.provincia or '-' }} / {{ cliente.paese or 'IT' }}</td></tr>
+            <tr><td>Telefono</td><td>{{ cliente.telefono or '-' }}</td></tr>
+            <tr><td>Email</td><td>{{ cliente.email or '-' }}</td></tr>
+        </table>
+    </div>
+
+    <div class="dettaglio-sezione">
+        <h3>Fatturazione & Commerciale</h3>
+        <table class="tabella-dettaglio">
+            <tr><td>PEC</td><td>{{ cliente.pec or '-' }}</td></tr>
+            <tr><td>Codice SDI</td><td>{{ cliente.codice_sdi or '-' }}</td></tr>
+            <tr><td>Settore merceologico</td><td>{{ cliente.settore_merceologico or '-' }}</td></tr>
+            <tr><td>Referente commerciale</td><td>{{ cliente.referente_commerciale or '-' }}</td></tr>
+            <tr><td>Telefono referente</td><td>{{ cliente.telefono_referente or '-' }}</td></tr>
+            <tr><td>Sconto default</td>
+                <td>{% if cliente.sconto_default %}{{ cliente.sconto_default }}%{% else %}-{% endif %}</td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="dettaglio-grid">
+    <div class="dettaglio-sezione" style="background:#f8f9fa;">
+        <h3>Ultimo ordine</h3>
+        <p style="font-size:18px;color:#1a3a5c;margin:6px 0;">
+            {% if ultimo_ordine %}
+                {{ ultimo_ordine[:10] }}
+            {% else %}
+                <span style="color:#999;">— nessun ordine —</span>
+            {% endif %}
+        </p>
+    </div>
+    <div class="dettaglio-sezione" style="background:#f8f9fa;">
+        <h3>Fatturato {{ anno_corrente }}</h3>
+        <p style="font-size:18px;color:#1a3a5c;margin:6px 0;font-family:'Courier New',monospace;">
+            € {{ "%.2f" | format(fatturato_annuo) }}
+        </p>
+        <p style="font-size:11px;color:#666;">esclusi ordini annullati</p>
+    </div>
+</div>
+
+<h3 style="margin-top:25px;color:#1a3a5c;">Modifica classificazione e note</h3>
+<form method="POST" action="/customer/{{ cliente.id }}/edit">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <div class="form-section">
+        <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">
+            Classificazione
+        </label>
+        <select name="classificazione" class="form-control" style="max-width:300px;">
+            {% for k, v in cl_label.items() %}
+            <option value="{{ k }}" {% if cliente.classificazione == k %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-section">
+        <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">
+            Note commerciali (libero)
+        </label>
+        <textarea name="note" rows="4" class="form-control"
+                  placeholder="Annotazioni interne sul cliente...">{{ cliente.note or '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <a href="/customers" class="btn">← Torna alla lista</a>
+    </div>
+</form>
+{% endblock %}
