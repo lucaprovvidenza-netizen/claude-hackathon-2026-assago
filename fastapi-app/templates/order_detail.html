@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Ordine {{ ordine.numero_ordine }}{% endblock %}
+
+{% block content %}
+<h2>Ordine {{ ordine.numero_ordine }}</h2>
+
+<div class="dettaglio-grid">
+    <div class="dettaglio-sezione">
+        <h3>Dati Ordine</h3>
+        <table class="tabella-dettaglio">
+            <tr><td>Numero</td><td>{{ ordine.numero_ordine }}</td></tr>
+            <tr><td>Data</td><td>{{ ordine.data_ordine[:10] if ordine.data_ordine else '-' }}</td></tr>
+            <tr><td>Consegna prevista</td><td>{{ ordine.data_consegna_prevista[:10] if ordine.data_consegna_prevista else '-' }}</td></tr>
+            <tr><td>Consegna effettiva</td><td>{{ ordine.data_consegna_effettiva[:10] if ordine.data_consegna_effettiva else '-' }}</td></tr>
+            <tr><td>Stato</td><td><span class="stato stato-{{ ordine.stato }}">{{ stato_label }}</span></td></tr>
+            <tr><td>Priorità</td><td>{{ ordine.priorita }}</td></tr>
+            <tr><td>Importo lordo</td><td>€ {{ "%.2f" | format(ordine.importo_lordo) }}</td></tr>
+            <tr><td>Sconto</td><td>{{ ordine.sconto_percentuale }}%</td></tr>
+            <tr><td>Importo netto</td><td><strong>€ {{ "%.2f" | format(ordine.importo_netto) }}</strong></td></tr>
+            <tr><td>Inserito da</td><td>{{ ordine.created_by or '-' }}</td></tr>
+        </table>
+    </div>
+    <div class="dettaglio-sezione">
+        <h3>Cliente</h3>
+        <table class="tabella-dettaglio">
+            <tr><td>Ragione Sociale</td><td>{{ ordine.cliente or 'N/D' }}</td></tr>
+            <tr><td>P.IVA</td><td>{{ ordine.partita_iva or '-' }}</td></tr>
+            <tr><td>PEC</td><td>{{ ordine.pec or '-' }}</td></tr>
+            <tr><td>Città</td><td>{{ ordine.citta or '-' }}</td></tr>
+            <tr><td>Email</td><td>{{ ordine.email or '-' }}</td></tr>
+        </table>
+    </div>
+</div>
+
+{% if ordine.note_interne %}
+<div class="note-box note-interne"><strong>Note interne:</strong> {{ ordine.note_interne }}</div>
+{% endif %}
+{% if ordine.note_cliente %}
+<div class="note-box"><strong>Note cliente:</strong> {{ ordine.note_cliente }}</div>
+{% endif %}
+
+<h3 style="margin-top:20px;color:#1a3a5c;">Righe Ordine</h3>
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>Codice</th><th>Descrizione</th><th>Tipologia</th>
+            <th>Qta</th><th>Prezzo Unit.</th><th>Sconto</th><th>Importo Riga</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in righe %}
+        <tr>
+            <td>{{ r.codice or '?' }}</td>
+            <td>{{ r.descrizione or 'Prodotto non trovato' }}</td>
+            <td>{{ r.tipologia or '-' }}</td>
+            <td class="numero">{{ r.quantita }}</td>
+            <td class="importo">€ {{ "%.2f" | format(r.prezzo_unitario) }}</td>
+            <td class="numero">{{ r.sconto_riga }}%</td>
+            <td class="importo">€ {{ "%.2f" | format(r.importo_riga) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="vuoto">Nessuna riga</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="form-actions">
+    <a href="/orders" class="btn">← Torna agli ordini</a>
+</div>
+{% endblock %}

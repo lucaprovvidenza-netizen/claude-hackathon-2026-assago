@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Brennero Logistics — {% block title %}Portale Ordini{% endblock %}</title>
+    <link rel="stylesheet" href="{{ request.url_for('static', path='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+<div class="header">
+    <span class="logo">Brennero Logistics</span>
+    <nav>
+        <a href="/orders"    {% if request.url.path == '/orders'    %}class="active"{% endif %}>Ordini</a>
+        <a href="/customers" {% if request.url.path == '/customers' %}class="active"{% endif %}>Clienti</a>
+        <a href="/reports"   {% if request.url.path == '/reports'   %}class="active"{% endif %}>Report</a>
+    </nav>
+    <span class="user-info">
+        {{ request.session.nome_completo }} ({{ request.session.ruolo }})
+        | <a href="/logout">Esci</a>
+    </span>
+</div>
+
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
+
+<div class="footer">
+    Brennero Logistics S.p.A. — Portale Ordini v2.0 (FastAPI)
+</div>
+</body>
+</html>

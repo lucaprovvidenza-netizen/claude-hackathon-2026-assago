@@ -2,22 +2,22 @@
 {% block title %}Report{% endblock %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+<script src="{{ request.url_for('static', path='js/chart.min.js') }}"></script>
 {% endblock %}
 
 {% block content %}
 <h2>Report Ordini per Cliente</h2>
 
-<form method="GET" action="{{ url_for('reports') }}" class="filtri-form">
+<form method="GET" action="/reports" class="filtri-form">
     <label>Anno:
         <input type="number" name="anno" value="{{ anno }}" min="2020" max="2030" class="input-anno">
     </label>
     <button type="submit" class="btn">Genera</button>
 </form>
 
-<!-- E3: grafico ordini per stato (Chart.js CDN) -->
+<!-- E3: grafico ordini per stato -->
 {% if chart_labels %}
-<div style="max-width:500px; margin: 20px 0;">
+<div style="max-width:500px;margin:20px 0;">
     <canvas id="chartStati"></canvas>
 </div>
 <script>
@@ -28,9 +28,7 @@ new Chart(document.getElementById('chartStati'), {
         datasets: [{
             label: 'Ordini per stato ({{ anno }})',
             data: {{ chart_data | tojson }},
-            backgroundColor: [
-                '#dee2e6','#d4edda','#fff3cd','#cce5ff','#d1ecf1','#f8d7da','#e2e3e5','#fff3cd'
-            ],
+            backgroundColor: {{ chart_colors | tojson }},
             borderColor: '#1a3a5c',
             borderWidth: 1
         }]
@@ -47,31 +45,28 @@ new Chart(document.getElementById('chartStati'), {
 <table class="tabella-dati">
     <thead>
         <tr>
-            <th>Cliente</th>
-            <th>N. Ordini</th>
-            <th>Totale</th>
-            <th>Media per Ordine</th>
+            <th>Cliente</th><th>N. Ordini</th><th>Totale</th><th>Media per Ordine</th>
         </tr>
     </thead>
     <tbody>
-        {% set grand_total = namespace(value=0, count=0) %}
+        {% set ns = namespace(tot=0, cnt=0) %}
         {% for r in report %}
-        {% set grand_total.value = grand_total.value + (r.totale or 0) %}
-        {% set grand_total.count = grand_total.count + r.num_ordini %}
+        {% set ns.tot = ns.tot + (r.totale or 0) %}
+        {% set ns.cnt = ns.cnt + r.num_ordini %}
         <tr>
             <td>{{ r.cliente or 'N/D' }}</td>
             <td class="numero">{{ r.num_ordini }}</td>
-            <td class="importo">€ {{ "%.2f"|format(r.totale or 0) }}</td>
-            <td class="importo">{% if r.media %}€ {{ "%.2f"|format(r.media) }}{% else %}-{% endif %}</td>
+            <td class="importo">€ {{ "%.2f" | format(r.totale or 0) }}</td>
+            <td class="importo">{% if r.media %}€ {{ "%.2f" | format(r.media) }}{% else %}-{% endif %}</td>
         </tr>
         {% else %}
-        <tr><td colspan="4" class="vuoto">Nessun dato per l'anno {{ anno }}</td></tr>
+        <tr><td colspan="4" class="vuoto">Nessun dato per il {{ anno }}</td></tr>
         {% endfor %}
         {% if report %}
         <tr class="totale-riga">
             <td><strong>TOTALE</strong></td>
-            <td class="numero"><strong>{{ grand_total.count }}</strong></td>
-            <td class="importo"><strong>€ {{ "%.2f"|format(grand_total.value) }}</strong></td>
+            <td class="numero"><strong>{{ ns.cnt }}</strong></td>
+            <td class="importo"><strong>€ {{ "%.2f" | format(ns.tot) }}</strong></td>
             <td></td>
         </tr>
         {% endif %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Ordini{% endblock %}
+
+{% block content %}
+<h2>Lista Ordini</h2>
+
+<form method="GET" action="/orders" class="filtri-form">
+    <label>Cliente:
+        <input type="text" name="filtroCliente" value="{{ filtroCliente }}">
+    </label>
+    <label>Stato:
+        <select name="filtroStato">
+            <option value="">Tutti</option>
+            {% for k, v in stati.items() %}
+            <option value="{{ k }}" {% if filtroStato == k %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Da:
+        <input type="date" name="dataDa" value="{{ dataDa }}">
+    </label>
+    <label>A:
+        <input type="date" name="dataA" value="{{ dataA }}">
+    </label>
+    <button type="submit" class="btn">Filtra</button>
+    {% if filtroCliente or filtroStato or dataDa or dataA %}
+    <a href="/orders" class="btn">Azzera</a>
+    {% endif %}
+</form>
+
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>N. Ordine</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Consegna Prevista</th>
+            <th>Stato</th>
+            <th>Priorità</th>
+            <th>Importo</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in ordini %}
+        <tr>
+            <td>{{ o.numero_ordine }}</td>
+            <td>{{ o.cliente or 'N/D' }}</td>
+            <td>{{ o.data_ordine[:10] if o.data_ordine else '-' }}</td>
+            <td>{{ o.data_consegna_prevista[:10] if o.data_consegna_prevista else '-' }}</td>
+            <td><span class="stato stato-{{ o.stato }}">{{ stati.get(o.stato, o.stato) }}</span></td>
+            <td><span class="priorita priorita-{{ o.priorita }}">{{ priorita.get(o.priorita, o.priorita) }}</span></td>
+            <td class="importo">
+                {% if o.importo_netto is not none %}€ {{ "%.2f" | format(o.importo_netto) }}
+                {% else %}-{% endif %}
+            </td>
+            <td><a href="/order/{{ o.id }}" class="btn btn-small">Dettaglio</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="vuoto">Nessun ordine trovato</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

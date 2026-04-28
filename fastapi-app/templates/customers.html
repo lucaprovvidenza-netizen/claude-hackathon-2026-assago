@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Clienti{% endblock %}
+
+{% block content %}
+<h2>Clienti</h2>
+
+<form method="GET" action="/customers" class="filtri-form">
+    <label>Cerca per nome:
+        <input type="text" name="termine" value="{{ termine }}" placeholder="Ragione sociale...">
+    </label>
+    <label>Classificazione:
+        <select name="classificazione">
+            <option value="">Tutti</option>
+            {% for k, v in cl_label.items() %}
+            <option value="{{ k }}" {% if classificazione == k %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit" class="btn">Cerca</button>
+    {% if termine or classificazione %}
+    <a href="/customers" class="btn">Azzera</a>
+    {% endif %}
+</form>
+
+<table class="tabella-dati">
+    <thead>
+        <tr>
+            <th>Ragione Sociale</th>
+            <th>P.IVA</th>
+            <th>Città</th>
+            <th>Email</th>
+            <th>Classificazione</th>
+            <th>Sconto</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in clienti %}
+        <tr>
+            <td>{{ c.ragione_sociale }}</td>
+            <td>{{ c.partita_iva or '-' }}</td>
+            <td>{{ c.citta or '-' }}</td>
+            <td>{{ c.email or '-' }}</td>
+            <td>
+                <span class="classificazione classificazione-{{ c.classificazione }}">
+                    {{ cl_label.get(c.classificazione, '?') }}
+                </span>
+            </td>
+            <td>{{ c.sconto_default ~ '%' if c.sconto_default else '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="vuoto">Nessun cliente trovato</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
