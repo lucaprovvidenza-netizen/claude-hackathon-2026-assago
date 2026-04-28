@@ -69,18 +69,17 @@ Full user stories with acceptance criteria: `docs/user-stories.md`
 - `utenti` has placeholder bcrypt hashes — replace with real seed script
 
 ## Conventions
-- Language: English for code and identifiers
+- Language: English for code and identifiers, Italian allowed in comments
 - Commits: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`)
 - No placeholder code — mark as `# TODO` if not implemented
 - No hardcoded secrets — use `.env` + `python-dotenv`
 - ADRs in `/decisions/` folder, filename: `ADR-NNN-short-title.md`
 - PR reviews required — no direct push to main for feature work
 - Tests must pass before merging
-- Keep this file updated as conventions evolve
 
 ## Key Rules
 - Commit often — commit history is judged
 - Every architectural decision → ADR in `/decisions/`
-- Schema changes → new Alembic migration file, never edit `schema-sqlite-v1.sql` directly
+- Schema changes → new Alembic migration file, never edit `schema-sqlite-v1.sql`
 - No hardcoded credentials anywhere
 - Smoke test before every demo

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hackathon 2026 — Team Assago</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --card: #1e1e1e;
+      --border: #2a2a2a;
+      --accent: #d97706;
+      --accent2: #f59e0b;
+      --text: #f0f0f0;
+      --muted: #888;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Nav */
+    .nav {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav button {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+
+    .nav button:hover { background: var(--border); }
+    .nav button:disabled { opacity: 0.3; cursor: default; }
+
+    .nav .counter {
+      font-size: 12px;
+      color: var(--muted);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .slide-dots {
+      position: fixed;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .dot.active { background: var(--accent); transform: scale(1.4); }
+
+    /* Typography */
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: clamp(26px, 3.5vw, 44px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    p, li {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #ccc;
+    }
+
+    .accent { color: var(--accent); }
+    .accent2 { color: var(--accent2); }
+    .muted { color: var(--muted); }
+    .green { color: var(--green); }
+    .red { color: var(--red); }
+    .blue { color: var(--blue); }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; }
+
+    /* Tag */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .tag-orange { background: rgba(217,119,6,0.15); color: var(--accent2); border: 1px solid rgba(217,119,6,0.3); }
+    .tag-green  { background: rgba(34,197,94,0.1);  color: var(--green);   border: 1px solid rgba(34,197,94,0.3); }
+    .tag-red    { background: rgba(239,68,68,0.1);  color: var(--red);     border: 1px solid rgba(239,68,68,0.3); }
+    .tag-blue   { background: rgba(59,130,246,0.1); color: var(--blue);    border: 1px solid rgba(59,130,246,0.3); }
+    .tag-purple { background: rgba(168,85,247,0.1); color: var(--purple);  border: 1px solid rgba(168,85,247,0.3); }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #ccc; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; width: 100%; }
+    .tl-item { display: flex; gap: 20px; align-items: flex-start; }
+    .tl-left { min-width: 80px; text-align: right; font-size: 12px; color: var(--accent); font-weight: 600; padding-top: 14px; }
+    .tl-line { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-top: 16px; flex-shrink: 0; }
+    .tl-bar { width: 2px; flex: 1; background: var(--border); min-height: 20px; }
+    .tl-item:last-child .tl-bar { display: none; }
+    .tl-content { flex: 1; padding: 10px 0 16px; }
+    .tl-content p { font-size: 14px; margin-top: 4px; }
+
+    /* Progress */
+    .progress-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+    .progress-label { min-width: 120px; font-size: 13px; color: var(--muted); }
+    .progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+
+    /* Slide-specific overrides */
+    #s1 { background: radial-gradient(ellipse at 30% 50%, rgba(217,119,6,0.08) 0%, transparent 60%), var(--bg); }
+    #s1 h1 span { color: var(--accent); }
+
+    .hero-meta { display: flex; gap: 24px; margin-top: 32px; }
+    .hero-meta .item { display: flex; flex-direction: column; gap: 4px; }
+    .hero-meta .item .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .hero-meta .item .value { font-size: 15px; font-weight: 600; }
+
+    .divider { width: 48px; height: 3px; background: var(--accent); border-radius: 2px; margin: 20px 0; }
+
+    #s2 .problem-box {
+      border-left: 3px solid var(--accent);
+      padding-left: 24px;
+      max-width: 700px;
+    }
+
+    .epic-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .epic-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(217,119,6,0.15);
+      border: 1px solid rgba(217,119,6,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent2);
+      flex-shrink: 0;
+    }
+
+    .risk-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .risk-high { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .risk-med  { background: rgba(245,158,11,0.1); color: var(--accent2); border: 1px solid rgba(245,158,11,0.3); }
+    .risk-low  { background: rgba(34,197,94,0.1);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+
+    .slide-header { text-align: center; margin-bottom: 40px; }
+
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--accent2);
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — Title -->
+  <div class="slide active" id="s1">
+    <div style="max-width: 900px; width: 100%;">
+      <div class="eyebrow">Claude Code Hackathon 2026 — Assago</div>
+      <h1>Scenario 1:<br><span>The Monolith</span></h1>
+      <div class="divider"></div>
+      <p style="max-width: 580px; font-size: 18px; color: #bbb; line-height: 1.6;">
+        <strong style="color: var(--accent2);">Brennero Logistics S.p.A.</strong> — modernizzazione portale ordini Java legacy verso Python, senza big-bang rewrite.
+      </p>
+      <div class="hero-meta">
+        <div class="item">
+          <span class="label">Team</span>
+          <span class="value">Assago</span>
+        </div>
+        <div class="item">
+          <span class="label">Stack attuale</span>
+          <span class="value">Java + JSP + H2</span>
+        </div>
+        <div class="item">
+          <span class="label">Stack target</span>
+          <span class="value accent">Python + FastAPI + SQLite</span>
+        </div>
+        <div class="item">
+          <span class="label">App</span>
+          <span class="value accent2">Brennero Logistics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — Il problema -->
+  <div class="slide" id="s2">
+    <div style="max-width: 900px; width: 100%;">
+      <div class="slide-header">
+        <div class="eyebrow">Il punto di partenza</div>
+        <h2>Un monolite che funziona,<br>quasi</h2>
+      </div>
+      <div class="grid-2" style="align-items: start;">
+        <div>
+          <div class="problem-box">
+            <h3 style="margin-bottom: 12px;">L'app oggi</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+              <li>&#x26A0;&#xFE0F; <code>PortalServlet.java</code> — God Servlet unico</li>
+              <li>&#x26A0;&#xFE0F; H2 in-memory — dati persi ad ogni riavvio</li>
+              <li>&#x26A0;&#xFE0F; Credenziali hardcoded in <code>DatabaseManager.java</code></li>
+              <li>&#x26A0;&#xFE0F; Zero JavaScript — nessuna interattività</li>
+              <li>&#x26A0;&#xFE0F; 6 JSP + JSTL — no framework CSS</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom: 16px;">Stack attuale</h3>
+          <table>
+            <tr><th>Layer</th><th>Tecnologia</th></tr>
+            <tr><td>Language</td><td><span class="tag tag-red">Java</span></td></tr>
+            <tr><td>Frontend</td><td>JSP + JSTL 1.2</td></tr>
+            <tr><td>Backend</td><td>Servlet puro</td></tr>
+            <tr><td>Database</td><td>H2 in-memory</td></tr>
+            <tr><td>CSS</td><td>Vanilla, no framework</td></tr>
+            <tr><td>JS</td><td><span class="tag tag-red">Assente</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — Team -->
+  <div class="slide" id="s3">
+    <div style="max-width: 800px; width: 100%;">
+      <div class="slide-header">
+        <div class="eyebrow">Team Assago</div>
+        <h2>Tre ruoli, un obiettivo</h2>
+      </div>
+      <div class="grid-3">
+        <div class="card" style="text-align: center; border-top: 3px solid var(--accent);">
+          <div style="font-size: 40px; margin-bottom: 12px;">&#x1F4CB;</div>
+          <h3>Luca Provvidenza</h3>
+          <div class="tag tag-orange" style="margin: 8px 0 12px;">PM</div>
+          <p style="font-size: 14px;">User stories, CLAUDE.md, README, ADR coordination, commit messages, demo</p>
+        </div>
+        <div class="card" style="text-align: center; border-top: 3px solid var(--blue);">
+          <div style="font-size: 40px; margin-bottom: 12px;">&#x1F3DB;&#xFE0F;</div>
+          <h3>Chiara Scarpino</h3>
+          <div class="tag tag-blue" style="margin: 8px 0 12px;">Architect</div>
+          <p style="font-size: 14px;">Monolite Java, ADR-001 migrazione, ADR-002 DB, schema SQLite</p>
+        </div>
+        <div class="card" style="text-align: center; border-top: 3px solid var(--green);">
+          <div style="font-size: 40px; margin-bottom: 12px;">&#x2699;&#xFE0F;</div>
+          <h3>Lucia Cilento</h3>
+          <div class="tag tag-green" style="margin: 8px 0 12px;">Dev</div>
+          <p style="font-size: 14px;">FastAPI scaffold, migrazione route, E2 Gold/Silver/Bronze, E3 Chart.js</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — Epics -->
+  <div class="slide" id="s4">
+    <div style="max-width: 900px; width: 100%;">
+      <div class="slide-header">
+        <div class="eyebrow">Scope di progetto</div>
+        <h2>5 Epics</h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="epic-badge">
+            <div class="epic-num">E1</div>
+            <div>
+              <div style="font-weight: 600;">Order Management</div>
+              <div style="font-size: 13px; color: var(--muted);">Extended catalog — products + services with differentiated types</div>
+            </div>
+          </div>
+          <span class="risk-pill risk-low">P1</span>
+        </div>
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="epic-badge">
+            <div class="epic-num">E2</div>
+            <div>
+              <div style="font-weight: 600;">Customer Management</div>
+              <div style="font-size: 13px; color: var(--muted);">Extended fields, search by name/product, Gold/Silver/Bronze</div>
+            </div>
+          </div>
+          <span class="risk-pill risk-low">P1</span>
+        </div>
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="epic-badge">
+            <div class="epic-num">E3</div>
+            <div>
+              <div style="font-weight: 600;">Reporting</div>
+              <div style="font-size: 13px; color: var(--muted);">Modern dashboard with Chart.js — orders, customers, trends</div>
+            </div>
+          </div>
+          <span class="risk-pill risk-med">P2</span>
+        </div>
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="epic-badge">
+            <div class="epic-num">E4</div>
+            <div>
+              <div style="font-weight: 600;">Modernization</div>
+              <div style="font-size: 13px; color: var(--muted);">Java → Python (FastAPI), fix known anomalies, God Servlet → FastAPI router</div>
+            </div>
+          </div>
+          <span class="risk-pill risk-high">OBBLIGATORIA</span>
+        </div>
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="epic-badge">
+            <div class="epic-num">E5</div>
+            <div>
+              <div style="font-weight: 600;">Integrità Dati</div>
+              <div style="font-size: 13px; color: var(--muted);">H2 in-memory → SQLite persistente, fix creds hardcoded, archivio storico</div>
+            </div>
+          </div>
+          <span class="risk-pill risk-med">P2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — Architettura target -->
+  <div class="slide" id="s5">
+    <div style="max-width: 900px; width: 100%;">
+      <div class="slide-header">
+        <div class="eyebrow">Architettura target</div>
+        <h2>Da God Servlet a Router FastAPI</h2>
+      </div>
+      <div class="grid-2" style="align-items: start;">
+        <div class="card" style="border-top: 3px solid var(--red);">
+          <h3 style="margin-bottom: 16px; color: var(--red);">&#x2715; Prima (Java)</h3>
+          <table>
+            <tr><th>Componente</th><th>Problema</th></tr>
+            <tr><td><code>PortalServlet.java</code></td><td>Tutto in un file</td></tr>
+            <tr><td>H2 in-memory</td><td>Dati volatili</td></tr>
+            <tr><td>6 JSP</td><td>Logic + view mescolate</td></tr>
+            <tr><td>Creds hardcoded</td><td>Security issue</td></tr>
+            <tr><td>Zero JS</td><td>No dashboard</td></tr>
+          </table>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--green);">
+          <h3 style="margin-bottom: 16px; color: var(--green);">&#x2714; Dopo (Python)</h3>
+          <table>
+            <tr><th>Componente</th><th>Soluzione</th></tr>
+            <tr><td>FastAPI Router</td><td>Route separate per dominio</td></tr>
+            <tr><td>SQLite file</td><td>Dati persistenti</td></tr>
+            <tr><td>Jinja2 templates</td><td>View pulite</td></tr>
+            <tr><td><code>.env</code> vars</td><td>No secrets in codice</td></tr>
+            <tr><td>Chart.js CDN</td><td>Dashboard E3</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — Sprint plan -->
+  <div class="slide" id="s6">
+    <div style="max-width: 900px; width: 100%;">
+      <div class="slide-header">
+        <div class="eyebrow">Piano di esecuzione</div>
+        <h2>53 minuti — 3 track parallele</h2>
+      </div>
+      <div class="grid-3" style="align-items: start;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <div class="tag tag-orange">Luca — PM</div>
+          </div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-left">0–10</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>CLAUDE.md + README</strong><p>Stack, ruoli, scenario</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">10–20</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>decisions/ folder</strong><p>ADR template + commit struttura</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">20–50</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>Coordinamento</strong><p>Review PR, commit messages</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">50–53</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>Demo check</strong><p>Smoke test end-to-end</p></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <div class="tag tag-blue">Chiara — Arch</div>
+          </div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-left">0–10</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>ADR-001</strong><p>Java → Python decision</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">10–20</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>Schema SQLite</strong><p>Nuovi campi E2 + persistenza</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">20–50</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>ADR-002 + Review</strong><p>DB migration + code review</p></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+            <div class="tag tag-green">Lucia — Dev</div>
+          </div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-left">0–15</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>FastAPI scaffold</strong><p>App base + H2→SQLite</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">15–25</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>Migra route core</strong><p>orders + customers → Jinja2</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">25–35</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>E2</strong><p>Priorità cliente + ricerca</p></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-left">35–50</div>
+              <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+              <div class="tl-content"><strong>E3 + E1</strong><p>Chart.js + tipo catalogo</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 — What We Deliver -->
+  <div class="slide" id="s7">
+    <div style="max-width: 800px; width: 100%;">
+      <div class="slide-header">
+        <div class="eyebrow">Deliverables</div>
+        <h2>What We Deliver</h2>
+      </div>
+      <div class="grid-2" style="align-items: start;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
+              <div>
+                <div style="font-weight: 600;">App Python funzionante</div>
+                <div style="font-size: 13px; color: var(--muted);">FastAPI + SQLite persistente, no hardcoded secrets</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
+              <div>
+                <div style="font-weight: 600;">Customer Gold/Silver/Bronze + search</div>
+                <div style="font-size: 13px; color: var(--muted);">Classification with color badge, search by name and product</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
+              <div>
+                <div style="font-weight: 600;">Dashboard con grafici</div>
+                <div style="font-size: 13px; color: var(--muted);">Chart.js — ordini per stato, trend clienti</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
+              <div>
+                <div style="font-weight: 600;">ADR-001 + ADR-002</div>
+                <div style="font-size: 13px; color: var(--muted);">Decisioni architetturali documentate in /decisions</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3);">&#x2714;</div>
+              <div>
+                <div style="font-weight: 600;">CLAUDE.md aggiornato</div>
+                <div style="font-size: 13px; color: var(--muted);">Stack, ruoli, convenzioni, scenario completo</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="epic-badge">
+              <div class="epic-num" style="background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3); color: var(--purple);">&#x25B3;</div>
+              <div>
+                <div style="font-weight: 600;">Catalogo E1</div>
+                <div style="font-size: 13px; color: var(--muted);">Tipo prodotto/servizio — se il tempo lo permette</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- Dots -->
+<div class="slide-dots" id="dots"></div>
+
+<!-- Nav -->
+<div class="nav">
+  <button id="prev" disabled>&#8592; Prev</button>
+  <span class="counter" id="counter">1 / 7</span>
+  <button id="next">Next &#8594;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('dots');
+  let current = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsContainer.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dotsContainer.children[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + slides.length;
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === slides.length - 1;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => current > 0 && goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => current < slides.length - 1 && goTo(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') current < slides.length - 1 && goTo(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   current > 0 && goTo(current - 1);
+  });
+</script>
+</body>
+</html>

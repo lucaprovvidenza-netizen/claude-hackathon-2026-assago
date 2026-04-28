@@ -27,7 +27,7 @@ orders, customers, reporting, and data integrity.
 
 **Target — Python:**
 - FastAPI + SQLAlchemy 2.x async + Alembic migrations
-- SQLite 3 WAL mode — persistent data
+- SQLite 3 WAL mode — persistent data, single-file backup
 - Customer classification Gold / Silver / Bronze with color badge
 - Global search by customer name and product
 - Extended catalog: TRANSPORT, CUSTOMS, WAREHOUSE, INSURANCE, CONSULTING
@@ -90,13 +90,10 @@ docs/
 slides/
   index.html                  Project presentation (open in browser)
 submission/Assago/
-  README.md                   Submission readme
+  README.md                   This file
   CLAUDE.md                   Project conventions and context
   Presentation.html           Submission slides
 ```
-
-## Presentation
-Project presentation: `slides/index.html` — open in browser, navigate with arrow keys.
 
 ## If We Had More Time
 - E5 complete: automated integrity checks + order archival job
