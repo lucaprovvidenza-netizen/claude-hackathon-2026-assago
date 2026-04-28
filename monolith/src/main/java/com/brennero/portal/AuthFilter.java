@@ -31,8 +31,10 @@ public class AuthFilter implements Filter {
         String path = req.getRequestURI();
 
         // Lascia passare login, CSS e risorse statiche
+        String action = req.getParameter("action");
         if (path.endsWith("login.jsp") || path.contains("/css/")
-            || path.endsWith("login") || path.endsWith(".ico")) {
+            || path.endsWith("login") || path.endsWith(".ico")
+            || "login".equals(action)) {
             chain.doFilter(request, response);
             return;
         }
